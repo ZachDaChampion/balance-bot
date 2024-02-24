@@ -27,4 +27,7 @@ enum class ConfigMode {
 // The baud rate of the serial port.
 #define CONFIG_SERIAL_BAUD_RATE 115200
 
+// The update interval of the motors in milliseconds.
+#define UPDATE_INTERVAL 5
+
 #endif

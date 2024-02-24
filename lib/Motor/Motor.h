@@ -6,11 +6,14 @@
 #include <Encoder.h>
 #include <Preferences.h>
 
-#define MAX_RPM 100
-#define ENCODER_TICKS_PER_REVOLUTION 1000
+static const int MAX_RPM = 100;
+static const int ENCODER_TICKS_PER_REVOLUTION = 1000;
+static const int PWM_NEUTRAL = 1500;
+static const int PWM_RANGE = 500;
 
-#define PWM_NEUTRAL 1500
-#define PWM_RANGE 500
+static const size_t MOTOR_LUT_SIZE = MAX_RPM * 2 + 1;
+static const int PWM_MIN = PWM_NEUTRAL - PWM_RANGE;
+static const int PWM_MAX = PWM_NEUTRAL + PWM_RANGE;
 
 template <size_t ENC_FILTER_SAMPLES>
 class Motor {
@@ -29,6 +32,10 @@ class Motor {
             int pulse_width = PWM_NEUTRAL + rpm * PWM_RANGE / MAX_RPM;
             this->motor_lut[rpm + MAX_RPM] = pulse_width;
         }
+
+        // PWM to overcome static friction defaults to 10% of the PWM range.
+        this->pwm_static_friction_neg = PWM_RANGE / 10;
+        this->pwm_static_friction_pos = PWM_RANGE / 10;
     }
 
     /**
@@ -61,23 +68,43 @@ class Motor {
      * @return True if the calibration data was loaded successfully, false otherwise.
      */
     bool load_calibration(Preferences* prefs) {
-        String saved_table_name = prefs->getString("motor" + String(this->id) + "_lut");
+        String lut_table_name = prefs->getString("motor" + String(this->id) + "_lut");
+        String static_neg_table_name = prefs->getString("motor" + String(this->id) + "_static_neg");
+        String static_pos_table_name = prefs->getString("motor" + String(this->id) + "_static_pos");
 
         // Check if the calibration data exists and is the correct size.
-        uint16_t saved_table_size = prefs->getBytesLength(saved_table_name);
-        if (saved_table_size == 0) {
-            Serial.println("No calibration data found for motor " + String(this->id));
+        uint16_t lut_table_size = prefs->getBytesLength(lut_table_name);
+        uint16_t static_neg_table_size = prefs->getBytesLength(static_neg_table_name);
+        uint16_t static_pos_table_size = prefs->getBytesLength(static_pos_table_name);
+        if (lut_table_size == 0 || static_neg_table_size == 0 || static_pos_table_size == 0) {
+            Serial.printf("No calibration data found for motor %d\n", this->id);
             return false;
         }
-        if (saved_table_size != sizeof(this->motor_lut)) {
-            Serial.println("Calibration data for motor " + String(this->id) +
-                           " is the wrong size. Expected " + String(sizeof(this->motor_lut)) +
-                           ", got " + String(saved_table_size));
+        if (lut_table_size != sizeof(this->motor_lut) ||
+            static_neg_table_size != sizeof(this->pwm_static_friction_neg) ||
+            static_pos_table_size != sizeof(this->pwm_static_friction_pos)) {
+            Serial.printf(
+                "Calibration data for motor %d is the wrong size:\n"
+                "| Correct size | Actual size |\n"
+                "| ------------ | ------------ |\n"
+                "| %12d | %12d |\n"
+                "| %12d | %12d |\n"
+                "| %12d | %12d |\n",
+                this->id, sizeof(this->motor_lut), lut_table_size,
+                sizeof(this->pwm_static_friction_neg), static_neg_table_size,
+                sizeof(this->pwm_static_friction_pos), static_pos_table_size);
             return false;
         }
 
         // Load the calibration data.
-        prefs->getBytes(saved_table_name, this->motor_lut, sizeof(this->motor_lut));
+        prefs->getBytes(lut_table_name, this->motor_lut, sizeof(this->motor_lut));
+        prefs->getBytes(static_neg_table_name, &this->pwm_static_friction_neg,
+                        sizeof(this->pwm_static_friction_neg));
+        prefs->getBytes(static_pos_table_name, &this->pwm_static_friction_pos,
+                        sizeof(this->pwm_static_friction_pos));
+
+        Serial.printf("Calibration data loaded for motor %d\n", this->id);
+        return true;
     }
 
     /**
@@ -95,9 +122,8 @@ class Motor {
             (enc_count - last_enc_count) * 60000000.0 / elapsed / ENCODER_TICKS_PER_REVOLUTION;
 
         // Update encoder history.
-        for (size_t i = 0; i < ENC_FILTER_SAMPLES - 1; ++i) {
-            this->enc_speed_history[i] = this->enc_speed_history[i + 1];
-        }
+        memcpy(this->enc_speed_history, this->enc_speed_history + 1,
+               sizeof(this->enc_speed_history[0]) * (ENC_FILTER_SAMPLES - 1));
         this->enc_speed_history[ENC_FILTER_SAMPLES - 1] = enc_speed;
 
         last_update_time = now;
@@ -119,6 +145,22 @@ class Motor {
 
         this->cmd_speed = speed;
         this->motor.writeMicroseconds(this->motor_lut[speed + MAX_RPM]);
+    }
+
+    /**
+     * Set the speed of the motor in PWM.
+     *
+     * @param[in] pwm The pulse width of the motor, in the range [PWM_MIN, PWM_MAX].
+     */
+    void set_pwm(int pwm) {
+        // Clamp the PWM to the range [PWM_MIN, PWM_MAX].
+        if (pwm < PWM_MIN) {
+            pwm = PWM_MIN;
+        } else if (pwm > PWM_MAX) {
+            pwm = PWM_MAX;
+        }
+
+        this->motor.writeMicroseconds(pwm);
     }
 
     /**
@@ -179,8 +221,10 @@ class Motor {
     int cmd_speed;
     int32_t last_enc_count;
     unsigned long last_update_time;
-    int motor_lut[MAX_RPM * 2 + 1];
-    float enc_speed_history[ENC_HISTORY_SIZE];
+    int motor_lut[MOTOR_LUT_SIZE];
+    int pwm_static_friction_neg;
+    int pwm_static_friction_pos;
+    float enc_speed_history[ENC_FILTER_SAMPLES];
 };
 
 #endif
