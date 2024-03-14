@@ -6,8 +6,10 @@
 #include <Encoder.h>
 #include <Preferences.h>
 
+#include <memory>
+
 static const int MAX_RPM = 100;
-static const int ENCODER_TICKS_PER_REVOLUTION = 1000;
+static const int ENCODER_TICKS_PER_REVOLUTION = 2000;
 static const int PWM_NEUTRAL = 1500;
 static const int PWM_RANGE = 500;
 
@@ -48,8 +50,8 @@ class Motor {
     void attach(int pwm_pin, int enc_pin_a, int enc_pin_b) {
         this->motor.attach(pwm_pin, PWM_MIN, PWM_MAX);
         this->motor.writeMicroseconds(PWM_NEUTRAL);
-        this->enc = Encoder(enc_pin_a, enc_pin_b);
-        this->enc.write(0);
+        this->enc = std::unique_ptr<Encoder>(new Encoder(enc_pin_a, enc_pin_b));
+        this->enc->write(0);
     }
 
     /**
@@ -68,14 +70,24 @@ class Motor {
      * @return True if the calibration data was loaded successfully, false otherwise.
      */
     bool load_calibration(Preferences* prefs) {
-        String lut_table_name = prefs->getString("motor" + String(this->id) + "_lut");
-        String static_neg_table_name = prefs->getString("motor" + String(this->id) + "_static_neg");
-        String static_pos_table_name = prefs->getString("motor" + String(this->id) + "_static_pos");
+        String lut_table_key = "motor" + String(this->id) + "_lut";
+        String static_neg_table_key = "motor" + String(this->id) + "_st-";
+        String static_pos_table_key = "motor" + String(this->id) + "_st+";
 
-        // Check if the calibration data exists and is the correct size.
-        uint16_t lut_table_size = prefs->getBytesLength(lut_table_name);
-        uint16_t static_neg_table_size = prefs->getBytesLength(static_neg_table_name);
-        uint16_t static_pos_table_size = prefs->getBytesLength(static_pos_table_name);
+        // Load the calibration data table names.
+        String lut_table_name = prefs->getString(lut_table_key.c_str());
+        String static_neg_table_name = prefs->getString(static_neg_table_key.c_str());
+        String static_pos_table_name = prefs->getString(static_pos_table_key.c_str());
+        if (lut_table_name.isEmpty() || static_neg_table_name.isEmpty() ||
+            static_pos_table_name.isEmpty()) {
+            Serial.printf("No calibration data found for motor %d\n", this->id);
+            return false;
+        }
+
+        // Check if the calibration is the correct size.
+        uint16_t lut_table_size = prefs->getBytesLength(lut_table_name.c_str());
+        uint16_t static_neg_table_size = prefs->getBytesLength(static_neg_table_name.c_str());
+        uint16_t static_pos_table_size = prefs->getBytesLength(static_pos_table_name.c_str());
         if (lut_table_size == 0 || static_neg_table_size == 0 || static_pos_table_size == 0) {
             Serial.printf("No calibration data found for motor %d\n", this->id);
             return false;
@@ -97,10 +109,10 @@ class Motor {
         }
 
         // Load the calibration data.
-        prefs->getBytes(lut_table_name, this->motor_lut, sizeof(this->motor_lut));
-        prefs->getBytes(static_neg_table_name, &this->pwm_static_friction_neg,
+        prefs->getBytes(lut_table_name.c_str(), this->motor_lut, sizeof(this->motor_lut));
+        prefs->getBytes(static_neg_table_name.c_str(), &this->pwm_static_friction_neg,
                         sizeof(this->pwm_static_friction_neg));
-        prefs->getBytes(static_pos_table_name, &this->pwm_static_friction_pos,
+        prefs->getBytes(static_pos_table_name.c_str(), &this->pwm_static_friction_pos,
                         sizeof(this->pwm_static_friction_pos));
 
         Serial.printf("Calibration data loaded for motor %d\n", this->id);
@@ -112,10 +124,12 @@ class Motor {
      * accurately.
      */
     void update() {
+        if (!this->enc) return;
+
         // Get the current state.
         unsigned long now = micros();
         unsigned long elapsed = now - last_update_time;
-        int32_t enc_count = enc.read();
+        int32_t enc_count = this->enc->read();
 
         // Calculate the current speed (in RPM).
         float enc_speed =
@@ -199,14 +213,16 @@ class Motor {
      *
      * @return The encoder count of the motor.
      */
-    int get_enc_count() { return this->enc.read(); }
+    int get_enc_count() { return (!this->enc) ? 0 : this->enc->read(); }
 
     /**
      * Reset the encoder count of the motor. This will also clear the encoder speed history and
      * reset the last encoder count.
      */
     void reset_enc_count() {
-        this->enc.write(0);
+        if (!this->enc) return;
+
+        this->enc->write(0);
         this->last_enc_count = 0;
 
         for (size_t i = 0; i < ENC_FILTER_SAMPLES; ++i) {
@@ -217,7 +233,7 @@ class Motor {
    private:
     uint8_t id;
     Servo motor;
-    Encoder enc;
+    std::unique_ptr<Encoder> enc;
     int cmd_speed;
     int32_t last_enc_count;
     unsigned long last_update_time;

@@ -1,9 +1,10 @@
 #include <Adafruit_BNO08x.h>
 #include <Arduino.h>
-#include <Motor.h>
 #include <Preferences.h>
 
-#include "config.h"
+#include <Motor.hpp>
+
+#include "config.hpp"
 
 //                                                                                                //
 // ====================================== Pin Definitions ======================================= //
@@ -11,7 +12,7 @@
 
 static const size_t PIN_IMU_CS = 5;
 static const size_t PIN_IMU_INT = 13;
-static const size_t PIN_IMU_RST = 1;
+static const size_t PIN_IMU_RST = 16;
 static const size_t PIN_IMU_MOSI = 23;  // DI on chip
 static const size_t PIN_IMU_MISO = 19;  // SDA on chip
 static const size_t PIN_IMU_SCK = 18;   // SCL on chip
@@ -31,8 +32,8 @@ static const size_t PIN_MOTOR_R = 2;
 SPIClass spi(VSPI);
 Adafruit_BNO08x imu(PIN_IMU_RST);
 
-Motor<3> motor_l(0);
-Motor<3> motor_r(1);
+Motor<5> motor_l(0);
+Motor<5> motor_r(1);
 
 //                                                                                                //
 // =============================== Motor and Encoder Calibration ================================ //
@@ -59,14 +60,16 @@ Motor<3> motor_r(1);
  * @param use_filtered_speed Whether to use the filtered speed or the raw speed for calibration.
  */
 void loop_motor_encoder_calibration(float step_size, size_t update_interval = 5,
-                                    size_t settle_time = 250, bool use_filtered_speed = true) {
+                                    size_t settle_time = 200, bool use_filtered_speed = true) {
+    Serial.println("Calibrating motors.");
+
     // Number of updates to wait for the motor to settle.
     static const size_t SETTLE_UPDATE_COUNT = settle_time / update_interval;
 
     // Calculate a valid step size. This uses the `step_size` parameter as a hint, but will
     // adjust the step size to ensure that the PWM range is evenly divided.
     int step_count = 1.f / step_size;
-    int mod = PWM_MAX % step_count;
+    int mod = PWM_RANGE % step_count;
     while (mod != 0) {
         if (mod < step_count / 2) {
             step_count++;
@@ -74,7 +77,7 @@ void loop_motor_encoder_calibration(float step_size, size_t update_interval = 5,
             step_count--;
         }
     }
-    int step_pwm = PWM_MAX / step_count;
+    int step_pwm = PWM_RANGE / step_count;
     Serial.printf("Calibrating with step size %d\n", step_pwm);
 
     // Create lists to store the recorded speeds at each PWM value. We use `step_count * 2` because
@@ -86,6 +89,8 @@ void loop_motor_encoder_calibration(float step_size, size_t update_interval = 5,
     // Iterate over each negative PWM value. We do this from fastest to slowest to ensure that
     // static friction is overcome for slower speeds.
     Serial.println("Calibrating negative speeds");
+    motor_l.update();
+    motor_r.update();
     for (int i = step_count; i > 0; --i) {
         int pwm = PWM_NEUTRAL + (-step_pwm * i);
         int idx = step_count - i;
@@ -107,6 +112,8 @@ void loop_motor_encoder_calibration(float step_size, size_t update_interval = 5,
 
     // Iterate over each positive PWM value. Again, from fastest to slowest.
     Serial.println("Calibrating positive speeds");
+    motor_l.update();
+    motor_r.update();
     for (int i = step_count; i > 0; --i) {
         int pwm = PWM_NEUTRAL + (step_pwm * i);
         int idx = step_count + i - 1;
@@ -142,6 +149,8 @@ void loop_motor_encoder_calibration(float step_size, size_t update_interval = 5,
     Serial.println("Calibrating negative static friction");
     int static_pwm_neg_l = PWM_NEUTRAL - step_pwm;
     int static_pwm_neg_r = PWM_NEUTRAL - step_pwm;
+    motor_l.update();
+    motor_r.update();
     while (1) {
         motor_l.update();
         motor_r.update();
@@ -162,16 +171,20 @@ void loop_motor_encoder_calibration(float step_size, size_t update_interval = 5,
     // Reset the motors to zero speed.
     motor_l.set_pwm(PWM_NEUTRAL);
     motor_r.set_pwm(PWM_NEUTRAL);
-    for (size_t t = 0; t < SETTLE_UPDATE_COUNT; ++t) {
+    while (1) {
         delay(update_interval);
         motor_l.update();
         motor_r.update();
+        if (abs(motor_l.get_speed_raw()) < 0.05 && abs(motor_r.get_speed_raw()) < 0.05) break;
     }
+    delay(2000);
 
     // Measure the PWM required to overcome static friction in the positive direction.
     Serial.println("Calibrating positive static friction");
     int static_pwm_pos_l = PWM_NEUTRAL + step_pwm;
     int static_pwm_pos_r = PWM_NEUTRAL + step_pwm;
+    motor_l.update();
+    motor_r.update();
     while (1) {
         motor_l.update();
         motor_r.update();
@@ -233,32 +246,39 @@ void loop_motor_encoder_calibration(float step_size, size_t update_interval = 5,
             continue;
         }
 
-        float range = 1.f;  // Start with a range of 1.
-        float weighted_sum_l = 0;
-        float weighted_sum_r = 0;
-        float weight_l = 0;
-        float weight_r = 0;
+        float range = 6.f;
+        float weighted_sum_l = 0.f;
+        float weighted_sum_r = 0.f;
+        float weight_l = 0.f;
+        float weight_r = 0.f;
         size_t count_l = 0;
         size_t count_r = 0;
 
-        for (size_t iterations = 0; iterations < 10; ++iterations) {
+        for (size_t iterations = 0; iterations < 14; ++iterations) {
+            weighted_sum_l = 0.f;
+            weighted_sum_r = 0.f;
+            weight_l = 0.f;
+            weight_r = 0.f;
+            count_l = 0;
+            count_r = 0;
+
             // Iterate over each speed and calculate the weighted sum of PWM values.
             for (int i = 0; i < step_count * 2; ++i) {
                 int pwm = i < step_count ? PWM_NEUTRAL - ((step_count - i) * step_pwm)
                                          : PWM_NEUTRAL + ((i - step_count + 1) * step_pwm);
                 float speed_l = speeds_l[i];
                 float speed_r = speeds_r[i];
-                float diff_l = speed_l - rpm;
-                float diff_r = speed_r - rpm;
-                if (abs(diff_l) <= range) {
-                    float w = 1.f / (1.f + speed_l - rpm);
-                    weighted_sum_l += pwm * w;
+                float abs_diff_l = abs(speed_l - rpm);
+                float abs_diff_r = abs(speed_r - rpm);
+                if (abs_diff_l <= range) {
+                    float w = 3.f / (3.f + abs_diff_l);
+                    weighted_sum_l += static_cast<float>(pwm) * w;
                     weight_l += w;
                     ++count_l;
                 }
-                if (abs(diff_r) <= range) {
-                    float w = 1.f / (1.f + speed_r - rpm);
-                    weighted_sum_r += pwm * w;
+                if (abs_diff_r <= range) {
+                    float w = 3.f / (3.f + abs_diff_r);
+                    weighted_sum_r += static_cast<float>(pwm) * w;
                     weight_r += w;
                     ++count_r;
                 }
@@ -274,53 +294,67 @@ void loop_motor_encoder_calibration(float step_size, size_t update_interval = 5,
         // Make sure that we are not dividing by zero.
         if (weight_l == 0.f || weight_r == 0.f) {
             Serial.printf(
-                "ERROR: Could not reach RPM %d. Calibration will be restarted in 5 seconds.\n",
-                rpm);
+                "ERROR: Could not find RPM %d.\n"
+                "L: %03.f with %d samples, R: %03.f with %d samples.\n"
+                "Calibration will be restarted in 5 seconds.\n",
+                rpm, weighted_sum_l, count_l, weighted_sum_r, count_r);
+            delay(5000);
+            return;
+        }
+        // Sanity check.
+        float weighted_avg_l = weighted_sum_l / weight_l;
+        float weighted_avg_r = weighted_sum_r / weight_r;
+        if (weighted_avg_l < PWM_MIN || weighted_avg_l > PWM_MAX || weighted_avg_r < PWM_MIN ||
+            weighted_avg_r > PWM_MAX) {
+            Serial.printf(
+                "ERROR: Weighted average out of range for RPM %d.\n"
+                "L: %03.f with %d samples, R: %03.f with %d samples.\n"
+                "Calibration will be restarted in 5 seconds.\n",
+                rpm, weighted_avg_l, count_l, weighted_avg_r, count_r);
             delay(5000);
             return;
         }
 
         // Calculate the weighted average of the PWM values and store it in the lookup table.
-        lut_l[rpm + MAX_RPM] = static_cast<int>(weighted_sum_l / weight_l);
-        lut_r[rpm + MAX_RPM] = static_cast<int>(weighted_sum_r / weight_r);
-
-        // Print the results.
-        Serial.println("Calibration complete. Results:");
-        Serial.println("|  RPM  | PWM L | PWM R |");
-        Serial.println("| ----- | ----- | ----- |");
-        for (int rpm = -MAX_RPM; rpm <= MAX_RPM; ++rpm) {
-            Serial.printf("| %5d | %5d | %5d |\n", rpm, lut_l[rpm + MAX_RPM], lut_r[rpm + MAX_RPM]);
-        }
-
-        // Prompt the user to save the lookup table.
-        Serial.println(
-            "Press 'y' if you would like to save the lookup table to persistent storage.");
-        while (1) {
-            if (Serial.available() > 0) {
-                char c = Serial.read();
-                if (c == 'y') break;
-            }
-        }
-
-        // Save the lookup table to persistent storage.
-        Preferences prefs;
-        if (prefs.begin("motor", false)) {
-            prefs.putBytes("motor_l_lut", lut_l, sizeof(lut_l));
-            prefs.putBytes("motor_r_lut", lut_r, sizeof(lut_r));
-            prefs.putInt("motor_l_static_neg", static_pwm_neg_l);
-            prefs.putInt("motor_r_static_neg", static_pwm_neg_r);
-            prefs.putInt("motor_l_static_pos", static_pwm_pos_l);
-            prefs.putInt("motor_r_static_pos", static_pwm_pos_r);
-            prefs.end();
-            Serial.println("Lookup table saved to persistent storage.");
-        } else {
-            Serial.println("ERROR: Could not save lookup table to persistent storage.");
-        }
-
-        // Infinite loop to prevent calibration from restarting.
-        while (1)
-            ;
+        lut_l[rpm + MAX_RPM] = static_cast<int>(weighted_avg_l);
+        lut_r[rpm + MAX_RPM] = static_cast<int>(weighted_avg_r);
     }
+
+    // Print the results.
+    Serial.println("Calibration complete. Results:");
+    Serial.println("|  RPM  | PWM L | PWM R |");
+    Serial.println("| ----- | ----- | ----- |");
+    for (int rpm = -MAX_RPM; rpm <= MAX_RPM; ++rpm) {
+        Serial.printf("| %5d | %5d | %5d |\n", rpm, lut_l[rpm + MAX_RPM], lut_r[rpm + MAX_RPM]);
+    }
+
+    // Prompt the user to save the lookup table.
+    Serial.println("Press 'y' if you would like to save the lookup table to persistent storage.");
+    while (1) {
+        if (Serial.available() > 0) {
+            char c = Serial.read();
+            if (c == 'y') break;
+        }
+    }
+
+    // Save the lookup table to persistent storage.
+    Preferences prefs;
+    if (prefs.begin("motor", false)) {
+        prefs.putBytes("motor_l_lut", lut_l, sizeof(lut_l));
+        prefs.putBytes("motor_r_lut", lut_r, sizeof(lut_r));
+        prefs.putInt("motor_l_st-", static_pwm_neg_l);
+        prefs.putInt("motor_r_st-", static_pwm_neg_r);
+        prefs.putInt("motor_l_st+", static_pwm_pos_l);
+        prefs.putInt("motor_r_st+", static_pwm_pos_r);
+        prefs.end();
+        Serial.println("Lookup table saved to persistent storage.");
+    } else {
+        Serial.println("ERROR: Could not save lookup table to persistent storage.");
+    }
+
+    // Infinite loop to prevent calibration from restarting.
+    while (1)
+        ;
 }
 
 //                                                                                                //
@@ -329,6 +363,7 @@ void loop_motor_encoder_calibration(float step_size, size_t update_interval = 5,
 
 void setup() {
     Serial.begin(CONFIG_SERIAL_BAUD_RATE);
+    Serial.println("Starting up.");
 
     // Initialize the IMU.
     //
@@ -340,10 +375,14 @@ void setup() {
     // Initialize the motors.
     motor_l.attach(PIN_MOTOR_L, PIN_ENC_L_A, PIN_ENC_L_B);
     motor_r.attach(PIN_MOTOR_R, PIN_ENC_R_A, PIN_ENC_R_B);
+
+    Serial.println("Initialization complete.");
+    Serial.println("Starting in 5 seconds.");
+    delay(5000);
 }
 
 void loop() {
-#if CONFIG_MODE == ConfigMode::MOTOR_ENCODER_CALIBRATION
-    loop_motor_encoder_calibration();
+#if CONFIG_MODE == CONFIG_MODE_MOTOR_ENCODER_CALIBRATION
+    loop_motor_encoder_calibration(0.01f, UPDATE_INTERVAL, 200);
 #endif
 }

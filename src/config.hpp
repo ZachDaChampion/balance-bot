@@ -6,12 +6,10 @@
 //                                                                                                //
 
 // Mode of operation.
-enum class ConfigMode {
-    MOTOR_ENCODER_CALIBRATION,
-    IMU_CALIBRATION,
-    BALANCING,
-    REMOTE_CONTROL,
-};
+#define CONFIG_MODE_MOTOR_ENCODER_CALIBRATION 0
+#define CONFIG_MODE_IMU_CALIBRATION 1
+#define CONFIG_MODE_BALANCING 2
+#define CONFIG_MODE_REMOTE_CONTROL 3
 
 //                                                                                                //
 // ======================================= Configurations ======================================= //
@@ -22,7 +20,7 @@ enum class ConfigMode {
 #define CONFIG_START_ON_BOOT false
 
 // The mode of operation.
-#define CONFIG_MODE ConfigMode::MOTOR_ENCODER_CALIBRATION
+#define CONFIG_MODE CONFIG_MODE_MOTOR_ENCODER_CALIBRATION
 
 // The baud rate of the serial port.
 #define CONFIG_SERIAL_BAUD_RATE 115200
