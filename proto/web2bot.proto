@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+import "params.proto";
+
+enum Command {
+    START = 0; // Start the balancing controller
+    STOP = 1; // Stop the balancing controller
+}
+
+message Web2Bot {
+    oneof msg {
+        Command command = 1;
+        PhysicalParams physical_params = 2;
+        PitchControllerParams pitch_controller_params = 3;
+        YawControllerParams roll_controller_params = 4;
+    }
+}

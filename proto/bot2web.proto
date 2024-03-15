@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+import "params.proto";
+
+// Current state of the balance bot.
+message State {
+    float pitch = 1; // Pitch angle in radians
+    float yaw = 2; // Yaw angle in radians
+    float pitch_rate = 3; // Pitch rate in radians per second
+    float yaw_rate = 4; // Yaw rate in radians per second
+    float left_motor_angle = 5; // Left motor angle in radians
+    float right_motor_angle = 6; // Right motor angle in radians
+    float left_motor_speed = 7; // Left motor speed in rpm
+    float right_motor_speed = 8; // Right motor speed in rpm
+    bool active = 9; // True if the bot is active
+}
+
+message Bot2Web {
+    oneof msg {
+        State state = 1;
+        PhysicalParams physical_params = 2;
+        PitchControllerParams pitch_controller_params = 3;
+        YawControllerParams yaw_controller_params = 4;
+    }
+}
