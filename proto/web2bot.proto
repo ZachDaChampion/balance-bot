@@ -5,13 +5,17 @@ import "params.proto";
 enum Command {
     START = 0; // Start the balancing controller
     STOP = 1; // Stop the balancing controller
+    SAVE_PHYSICAL_PARAMS = 2; // Save the physical parameters to persistent memory
+    SAVE_PITCH_CONTROLLER_PARAMS = 3; // Save the pitch controller parameters to persistent memory
+    SAVE_YAW_CONTROLLER_PARAMS = 4; // Save the yaw controller parameters to persistent memory
 }
 
 message Web2Bot {
+    uint32 id = 1;
     oneof msg {
-        Command command = 1;
-        PhysicalParams physical_params = 2;
-        PitchControllerParams pitch_controller_params = 3;
-        YawControllerParams roll_controller_params = 4;
+        Command command = 2;
+        PhysicalParams physical_params = 3;
+        PitchControllerParams pitch_controller_params = 4;
+        YawControllerParams roll_controller_params = 5;
     }
 }

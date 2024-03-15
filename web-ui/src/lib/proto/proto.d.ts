@@ -1,5 +1,126 @@
 import * as $protobuf from "protobufjs";
 import Long = require("long");
+/** Properties of a Response. */
+export interface IResponse {
+
+    /** Response code */
+    code?: (Response.Code|null);
+
+    /** Response commandId */
+    commandId?: (number|null);
+
+    /** Response message */
+    message?: (string|null);
+}
+
+/** Represents a Response. */
+export class Response implements IResponse {
+
+    /**
+     * Constructs a new Response.
+     * @param [properties] Properties to set
+     */
+    constructor(properties?: IResponse);
+
+    /** Response code. */
+    public code: Response.Code;
+
+    /** Response commandId. */
+    public commandId: number;
+
+    /** Response message. */
+    public message?: (string|null);
+
+    /** Response _message. */
+    public _message?: "message";
+
+    /**
+     * Creates a new Response instance using the specified properties.
+     * @param [properties] Properties to set
+     * @returns Response instance
+     */
+    public static create(properties?: IResponse): Response;
+
+    /**
+     * Encodes the specified Response message. Does not implicitly {@link Response.verify|verify} messages.
+     * @param message Response message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encode(message: IResponse, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Encodes the specified Response message, length delimited. Does not implicitly {@link Response.verify|verify} messages.
+     * @param message Response message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encodeDelimited(message: IResponse, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Decodes a Response message from the specified reader or buffer.
+     * @param reader Reader or buffer to decode from
+     * @param [length] Message length if known beforehand
+     * @returns Response
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): Response;
+
+    /**
+     * Decodes a Response message from the specified reader or buffer, length delimited.
+     * @param reader Reader or buffer to decode from
+     * @returns Response
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): Response;
+
+    /**
+     * Verifies a Response message.
+     * @param message Plain object to verify
+     * @returns `null` if valid, otherwise the reason why it is not
+     */
+    public static verify(message: { [k: string]: any }): (string|null);
+
+    /**
+     * Creates a Response message from a plain object. Also converts values to their respective internal types.
+     * @param object Plain object
+     * @returns Response
+     */
+    public static fromObject(object: { [k: string]: any }): Response;
+
+    /**
+     * Creates a plain object from a Response message. Also converts values to other types if specified.
+     * @param message Response
+     * @param [options] Conversion options
+     * @returns Plain object
+     */
+    public static toObject(message: Response, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+    /**
+     * Converts this Response to JSON.
+     * @returns JSON object
+     */
+    public toJSON(): { [k: string]: any };
+
+    /**
+     * Gets the default type url for Response
+     * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+     * @returns The default type url
+     */
+    public static getTypeUrl(typeUrlPrefix?: string): string;
+}
+
+export namespace Response {
+
+    /** Code enum. */
+    enum Code {
+        OK = 0,
+        ERROR = 1
+    }
+}
+
 /** Properties of a State. */
 export interface IState {
 
@@ -148,6 +269,12 @@ export class State implements IState {
 /** Properties of a Bot2Web. */
 export interface IBot2Web {
 
+    /** Bot2Web id */
+    id?: (number|null);
+
+    /** Bot2Web response */
+    response?: (IResponse|null);
+
     /** Bot2Web state */
     state?: (IState|null);
 
@@ -159,6 +286,9 @@ export interface IBot2Web {
 
     /** Bot2Web yawControllerParams */
     yawControllerParams?: (IYawControllerParams|null);
+
+    /** Bot2Web log */
+    log?: (ILog|null);
 }
 
 /** Represents a Bot2Web. */
@@ -169,6 +299,12 @@ export class Bot2Web implements IBot2Web {
      * @param [properties] Properties to set
      */
     constructor(properties?: IBot2Web);
+
+    /** Bot2Web id. */
+    public id: number;
+
+    /** Bot2Web response. */
+    public response?: (IResponse|null);
 
     /** Bot2Web state. */
     public state?: (IState|null);
@@ -182,8 +318,11 @@ export class Bot2Web implements IBot2Web {
     /** Bot2Web yawControllerParams. */
     public yawControllerParams?: (IYawControllerParams|null);
 
+    /** Bot2Web log. */
+    public log?: (ILog|null);
+
     /** Bot2Web msg. */
-    public msg?: ("state"|"physicalParams"|"pitchControllerParams"|"yawControllerParams");
+    public msg?: ("response"|"state"|"physicalParams"|"pitchControllerParams"|"yawControllerParams"|"log");
 
     /**
      * Creates a new Bot2Web instance using the specified properties.
@@ -856,10 +995,115 @@ export class YawPidParams implements IYawPidParams {
     public static getTypeUrl(typeUrlPrefix?: string): string;
 }
 
+/** LogLevel enum. */
+export enum LogLevel {
+    DEBUG = 0,
+    INFO = 1,
+    WARN = 2,
+    ERROR = 3,
+    FATAL = 4
+}
+
+/** Represents a Log. */
+export class Log implements ILog {
+
+    /**
+     * Constructs a new Log.
+     * @param [properties] Properties to set
+     */
+    constructor(properties?: ILog);
+
+    /** Log level. */
+    public level: LogLevel;
+
+    /** Log message. */
+    public message: string;
+
+    /**
+     * Creates a new Log instance using the specified properties.
+     * @param [properties] Properties to set
+     * @returns Log instance
+     */
+    public static create(properties?: ILog): Log;
+
+    /**
+     * Encodes the specified Log message. Does not implicitly {@link Log.verify|verify} messages.
+     * @param message Log message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encode(message: ILog, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Encodes the specified Log message, length delimited. Does not implicitly {@link Log.verify|verify} messages.
+     * @param message Log message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encodeDelimited(message: ILog, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Decodes a Log message from the specified reader or buffer.
+     * @param reader Reader or buffer to decode from
+     * @param [length] Message length if known beforehand
+     * @returns Log
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): Log;
+
+    /**
+     * Decodes a Log message from the specified reader or buffer, length delimited.
+     * @param reader Reader or buffer to decode from
+     * @returns Log
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): Log;
+
+    /**
+     * Verifies a Log message.
+     * @param message Plain object to verify
+     * @returns `null` if valid, otherwise the reason why it is not
+     */
+    public static verify(message: { [k: string]: any }): (string|null);
+
+    /**
+     * Creates a Log message from a plain object. Also converts values to their respective internal types.
+     * @param object Plain object
+     * @returns Log
+     */
+    public static fromObject(object: { [k: string]: any }): Log;
+
+    /**
+     * Creates a plain object from a Log message. Also converts values to other types if specified.
+     * @param message Log
+     * @param [options] Conversion options
+     * @returns Plain object
+     */
+    public static toObject(message: Log, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+    /**
+     * Converts this Log to JSON.
+     * @returns JSON object
+     */
+    public toJSON(): { [k: string]: any };
+
+    /**
+     * Gets the default type url for Log
+     * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+     * @returns The default type url
+     */
+    public static getTypeUrl(typeUrlPrefix?: string): string;
+}
+
 /** Command enum. */
 export enum Command {
     START = 0,
-    STOP = 1
+    STOP = 1,
+    SAVE_PHYSICAL_PARAMS = 2,
+    SAVE_PITCH_CONTROLLER_PARAMS = 3,
+    SAVE_YAW_CONTROLLER_PARAMS = 4
 }
 
 /** Represents a Web2Bot. */
@@ -870,6 +1114,9 @@ export class Web2Bot implements IWeb2Bot {
      * @param [properties] Properties to set
      */
     constructor(properties?: IWeb2Bot);
+
+    /** Web2Bot id. */
+    public id: number;
 
     /** Web2Bot command. */
     public command?: (Command|null);

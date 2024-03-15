@@ -7,6 +7,308 @@ const $Reader = $protobuf.Reader, $Writer = $protobuf.Writer, $util = $protobuf.
 // Exported root namespace
 const $root = $protobuf.roots["default"] || ($protobuf.roots["default"] = {});
 
+export const Response = $root.Response = (() => {
+
+    /**
+     * Properties of a Response.
+     * @exports IResponse
+     * @interface IResponse
+     * @property {Response.Code|null} [code] Response code
+     * @property {number|null} [commandId] Response commandId
+     * @property {string|null} [message] Response message
+     */
+
+    /**
+     * Constructs a new Response.
+     * @exports Response
+     * @classdesc Represents a Response.
+     * @implements IResponse
+     * @constructor
+     * @param {IResponse=} [properties] Properties to set
+     */
+    function Response(properties) {
+        if (properties)
+            for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                if (properties[keys[i]] != null)
+                    this[keys[i]] = properties[keys[i]];
+    }
+
+    /**
+     * Response code.
+     * @member {Response.Code} code
+     * @memberof Response
+     * @instance
+     */
+    Response.prototype.code = 0;
+
+    /**
+     * Response commandId.
+     * @member {number} commandId
+     * @memberof Response
+     * @instance
+     */
+    Response.prototype.commandId = 0;
+
+    /**
+     * Response message.
+     * @member {string|null|undefined} message
+     * @memberof Response
+     * @instance
+     */
+    Response.prototype.message = null;
+
+    // OneOf field names bound to virtual getters and setters
+    let $oneOfFields;
+
+    /**
+     * Response _message.
+     * @member {"message"|undefined} _message
+     * @memberof Response
+     * @instance
+     */
+    Object.defineProperty(Response.prototype, "_message", {
+        get: $util.oneOfGetter($oneOfFields = ["message"]),
+        set: $util.oneOfSetter($oneOfFields)
+    });
+
+    /**
+     * Creates a new Response instance using the specified properties.
+     * @function create
+     * @memberof Response
+     * @static
+     * @param {IResponse=} [properties] Properties to set
+     * @returns {Response} Response instance
+     */
+    Response.create = function create(properties) {
+        return new Response(properties);
+    };
+
+    /**
+     * Encodes the specified Response message. Does not implicitly {@link Response.verify|verify} messages.
+     * @function encode
+     * @memberof Response
+     * @static
+     * @param {IResponse} message Response message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    Response.encode = function encode(message, writer) {
+        if (!writer)
+            writer = $Writer.create();
+        if (message.code != null && Object.hasOwnProperty.call(message, "code"))
+            writer.uint32(/* id 1, wireType 0 =*/8).int32(message.code);
+        if (message.commandId != null && Object.hasOwnProperty.call(message, "commandId"))
+            writer.uint32(/* id 2, wireType 0 =*/16).uint32(message.commandId);
+        if (message.message != null && Object.hasOwnProperty.call(message, "message"))
+            writer.uint32(/* id 3, wireType 2 =*/26).string(message.message);
+        return writer;
+    };
+
+    /**
+     * Encodes the specified Response message, length delimited. Does not implicitly {@link Response.verify|verify} messages.
+     * @function encodeDelimited
+     * @memberof Response
+     * @static
+     * @param {IResponse} message Response message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    Response.encodeDelimited = function encodeDelimited(message, writer) {
+        return this.encode(message, writer).ldelim();
+    };
+
+    /**
+     * Decodes a Response message from the specified reader or buffer.
+     * @function decode
+     * @memberof Response
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @param {number} [length] Message length if known beforehand
+     * @returns {Response} Response
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    Response.decode = function decode(reader, length) {
+        if (!(reader instanceof $Reader))
+            reader = $Reader.create(reader);
+        let end = length === undefined ? reader.len : reader.pos + length, message = new $root.Response();
+        while (reader.pos < end) {
+            let tag = reader.uint32();
+            switch (tag >>> 3) {
+            case 1: {
+                    message.code = reader.int32();
+                    break;
+                }
+            case 2: {
+                    message.commandId = reader.uint32();
+                    break;
+                }
+            case 3: {
+                    message.message = reader.string();
+                    break;
+                }
+            default:
+                reader.skipType(tag & 7);
+                break;
+            }
+        }
+        return message;
+    };
+
+    /**
+     * Decodes a Response message from the specified reader or buffer, length delimited.
+     * @function decodeDelimited
+     * @memberof Response
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @returns {Response} Response
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    Response.decodeDelimited = function decodeDelimited(reader) {
+        if (!(reader instanceof $Reader))
+            reader = new $Reader(reader);
+        return this.decode(reader, reader.uint32());
+    };
+
+    /**
+     * Verifies a Response message.
+     * @function verify
+     * @memberof Response
+     * @static
+     * @param {Object.<string,*>} message Plain object to verify
+     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+     */
+    Response.verify = function verify(message) {
+        if (typeof message !== "object" || message === null)
+            return "object expected";
+        let properties = {};
+        if (message.code != null && message.hasOwnProperty("code"))
+            switch (message.code) {
+            default:
+                return "code: enum value expected";
+            case 0:
+            case 1:
+                break;
+            }
+        if (message.commandId != null && message.hasOwnProperty("commandId"))
+            if (!$util.isInteger(message.commandId))
+                return "commandId: integer expected";
+        if (message.message != null && message.hasOwnProperty("message")) {
+            properties._message = 1;
+            if (!$util.isString(message.message))
+                return "message: string expected";
+        }
+        return null;
+    };
+
+    /**
+     * Creates a Response message from a plain object. Also converts values to their respective internal types.
+     * @function fromObject
+     * @memberof Response
+     * @static
+     * @param {Object.<string,*>} object Plain object
+     * @returns {Response} Response
+     */
+    Response.fromObject = function fromObject(object) {
+        if (object instanceof $root.Response)
+            return object;
+        let message = new $root.Response();
+        switch (object.code) {
+        default:
+            if (typeof object.code === "number") {
+                message.code = object.code;
+                break;
+            }
+            break;
+        case "OK":
+        case 0:
+            message.code = 0;
+            break;
+        case "ERROR":
+        case 1:
+            message.code = 1;
+            break;
+        }
+        if (object.commandId != null)
+            message.commandId = object.commandId >>> 0;
+        if (object.message != null)
+            message.message = String(object.message);
+        return message;
+    };
+
+    /**
+     * Creates a plain object from a Response message. Also converts values to other types if specified.
+     * @function toObject
+     * @memberof Response
+     * @static
+     * @param {Response} message Response
+     * @param {$protobuf.IConversionOptions} [options] Conversion options
+     * @returns {Object.<string,*>} Plain object
+     */
+    Response.toObject = function toObject(message, options) {
+        if (!options)
+            options = {};
+        let object = {};
+        if (options.defaults) {
+            object.code = options.enums === String ? "OK" : 0;
+            object.commandId = 0;
+        }
+        if (message.code != null && message.hasOwnProperty("code"))
+            object.code = options.enums === String ? $root.Response.Code[message.code] === undefined ? message.code : $root.Response.Code[message.code] : message.code;
+        if (message.commandId != null && message.hasOwnProperty("commandId"))
+            object.commandId = message.commandId;
+        if (message.message != null && message.hasOwnProperty("message")) {
+            object.message = message.message;
+            if (options.oneofs)
+                object._message = "message";
+        }
+        return object;
+    };
+
+    /**
+     * Converts this Response to JSON.
+     * @function toJSON
+     * @memberof Response
+     * @instance
+     * @returns {Object.<string,*>} JSON object
+     */
+    Response.prototype.toJSON = function toJSON() {
+        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+    };
+
+    /**
+     * Gets the default type url for Response
+     * @function getTypeUrl
+     * @memberof Response
+     * @static
+     * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+     * @returns {string} The default type url
+     */
+    Response.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+        if (typeUrlPrefix === undefined) {
+            typeUrlPrefix = "type.googleapis.com";
+        }
+        return typeUrlPrefix + "/Response";
+    };
+
+    /**
+     * Code enum.
+     * @name Response.Code
+     * @enum {number}
+     * @property {number} OK=0 OK value
+     * @property {number} ERROR=1 ERROR value
+     */
+    Response.Code = (function() {
+        const valuesById = {}, values = Object.create(valuesById);
+        values[valuesById[0] = "OK"] = 0;
+        values[valuesById[1] = "ERROR"] = 1;
+        return values;
+    })();
+
+    return Response;
+})();
+
 export const State = $root.State = (() => {
 
     /**
@@ -401,10 +703,13 @@ export const Bot2Web = $root.Bot2Web = (() => {
      * Properties of a Bot2Web.
      * @exports IBot2Web
      * @interface IBot2Web
+     * @property {number|null} [id] Bot2Web id
+     * @property {IResponse|null} [response] Bot2Web response
      * @property {IState|null} [state] Bot2Web state
      * @property {IPhysicalParams|null} [physicalParams] Bot2Web physicalParams
      * @property {IPitchControllerParams|null} [pitchControllerParams] Bot2Web pitchControllerParams
      * @property {IYawControllerParams|null} [yawControllerParams] Bot2Web yawControllerParams
+     * @property {ILog|null} [log] Bot2Web log
      */
 
     /**
@@ -421,6 +726,22 @@ export const Bot2Web = $root.Bot2Web = (() => {
                 if (properties[keys[i]] != null)
                     this[keys[i]] = properties[keys[i]];
     }
+
+    /**
+     * Bot2Web id.
+     * @member {number} id
+     * @memberof Bot2Web
+     * @instance
+     */
+    Bot2Web.prototype.id = 0;
+
+    /**
+     * Bot2Web response.
+     * @member {IResponse|null|undefined} response
+     * @memberof Bot2Web
+     * @instance
+     */
+    Bot2Web.prototype.response = null;
 
     /**
      * Bot2Web state.
@@ -454,17 +775,25 @@ export const Bot2Web = $root.Bot2Web = (() => {
      */
     Bot2Web.prototype.yawControllerParams = null;
 
+    /**
+     * Bot2Web log.
+     * @member {ILog|null|undefined} log
+     * @memberof Bot2Web
+     * @instance
+     */
+    Bot2Web.prototype.log = null;
+
     // OneOf field names bound to virtual getters and setters
     let $oneOfFields;
 
     /**
      * Bot2Web msg.
-     * @member {"state"|"physicalParams"|"pitchControllerParams"|"yawControllerParams"|undefined} msg
+     * @member {"response"|"state"|"physicalParams"|"pitchControllerParams"|"yawControllerParams"|"log"|undefined} msg
      * @memberof Bot2Web
      * @instance
      */
     Object.defineProperty(Bot2Web.prototype, "msg", {
-        get: $util.oneOfGetter($oneOfFields = ["state", "physicalParams", "pitchControllerParams", "yawControllerParams"]),
+        get: $util.oneOfGetter($oneOfFields = ["response", "state", "physicalParams", "pitchControllerParams", "yawControllerParams", "log"]),
         set: $util.oneOfSetter($oneOfFields)
     });
 
@@ -492,14 +821,20 @@ export const Bot2Web = $root.Bot2Web = (() => {
     Bot2Web.encode = function encode(message, writer) {
         if (!writer)
             writer = $Writer.create();
+        if (message.id != null && Object.hasOwnProperty.call(message, "id"))
+            writer.uint32(/* id 1, wireType 0 =*/8).uint32(message.id);
+        if (message.response != null && Object.hasOwnProperty.call(message, "response"))
+            $root.Response.encode(message.response, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
         if (message.state != null && Object.hasOwnProperty.call(message, "state"))
-            $root.State.encode(message.state, writer.uint32(/* id 1, wireType 2 =*/10).fork()).ldelim();
+            $root.State.encode(message.state, writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
         if (message.physicalParams != null && Object.hasOwnProperty.call(message, "physicalParams"))
-            $root.PhysicalParams.encode(message.physicalParams, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
+            $root.PhysicalParams.encode(message.physicalParams, writer.uint32(/* id 4, wireType 2 =*/34).fork()).ldelim();
         if (message.pitchControllerParams != null && Object.hasOwnProperty.call(message, "pitchControllerParams"))
-            $root.PitchControllerParams.encode(message.pitchControllerParams, writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
+            $root.PitchControllerParams.encode(message.pitchControllerParams, writer.uint32(/* id 5, wireType 2 =*/42).fork()).ldelim();
         if (message.yawControllerParams != null && Object.hasOwnProperty.call(message, "yawControllerParams"))
-            $root.YawControllerParams.encode(message.yawControllerParams, writer.uint32(/* id 4, wireType 2 =*/34).fork()).ldelim();
+            $root.YawControllerParams.encode(message.yawControllerParams, writer.uint32(/* id 6, wireType 2 =*/50).fork()).ldelim();
+        if (message.log != null && Object.hasOwnProperty.call(message, "log"))
+            $root.Log.encode(message.log, writer.uint32(/* id 7, wireType 2 =*/58).fork()).ldelim();
         return writer;
     };
 
@@ -535,19 +870,31 @@ export const Bot2Web = $root.Bot2Web = (() => {
             let tag = reader.uint32();
             switch (tag >>> 3) {
             case 1: {
-                    message.state = $root.State.decode(reader, reader.uint32());
+                    message.id = reader.uint32();
                     break;
                 }
             case 2: {
-                    message.physicalParams = $root.PhysicalParams.decode(reader, reader.uint32());
+                    message.response = $root.Response.decode(reader, reader.uint32());
                     break;
                 }
             case 3: {
-                    message.pitchControllerParams = $root.PitchControllerParams.decode(reader, reader.uint32());
+                    message.state = $root.State.decode(reader, reader.uint32());
                     break;
                 }
             case 4: {
+                    message.physicalParams = $root.PhysicalParams.decode(reader, reader.uint32());
+                    break;
+                }
+            case 5: {
+                    message.pitchControllerParams = $root.PitchControllerParams.decode(reader, reader.uint32());
+                    break;
+                }
+            case 6: {
                     message.yawControllerParams = $root.YawControllerParams.decode(reader, reader.uint32());
+                    break;
+                }
+            case 7: {
+                    message.log = $root.Log.decode(reader, reader.uint32());
                     break;
                 }
             default:
@@ -586,7 +933,20 @@ export const Bot2Web = $root.Bot2Web = (() => {
         if (typeof message !== "object" || message === null)
             return "object expected";
         let properties = {};
+        if (message.id != null && message.hasOwnProperty("id"))
+            if (!$util.isInteger(message.id))
+                return "id: integer expected";
+        if (message.response != null && message.hasOwnProperty("response")) {
+            properties.msg = 1;
+            {
+                let error = $root.Response.verify(message.response);
+                if (error)
+                    return "response." + error;
+            }
+        }
         if (message.state != null && message.hasOwnProperty("state")) {
+            if (properties.msg === 1)
+                return "msg: multiple values";
             properties.msg = 1;
             {
                 let error = $root.State.verify(message.state);
@@ -624,6 +984,16 @@ export const Bot2Web = $root.Bot2Web = (() => {
                     return "yawControllerParams." + error;
             }
         }
+        if (message.log != null && message.hasOwnProperty("log")) {
+            if (properties.msg === 1)
+                return "msg: multiple values";
+            properties.msg = 1;
+            {
+                let error = $root.Log.verify(message.log);
+                if (error)
+                    return "log." + error;
+            }
+        }
         return null;
     };
 
@@ -639,6 +1009,13 @@ export const Bot2Web = $root.Bot2Web = (() => {
         if (object instanceof $root.Bot2Web)
             return object;
         let message = new $root.Bot2Web();
+        if (object.id != null)
+            message.id = object.id >>> 0;
+        if (object.response != null) {
+            if (typeof object.response !== "object")
+                throw TypeError(".Bot2Web.response: object expected");
+            message.response = $root.Response.fromObject(object.response);
+        }
         if (object.state != null) {
             if (typeof object.state !== "object")
                 throw TypeError(".Bot2Web.state: object expected");
@@ -659,6 +1036,11 @@ export const Bot2Web = $root.Bot2Web = (() => {
                 throw TypeError(".Bot2Web.yawControllerParams: object expected");
             message.yawControllerParams = $root.YawControllerParams.fromObject(object.yawControllerParams);
         }
+        if (object.log != null) {
+            if (typeof object.log !== "object")
+                throw TypeError(".Bot2Web.log: object expected");
+            message.log = $root.Log.fromObject(object.log);
+        }
         return message;
     };
 
@@ -675,6 +1057,15 @@ export const Bot2Web = $root.Bot2Web = (() => {
         if (!options)
             options = {};
         let object = {};
+        if (options.defaults)
+            object.id = 0;
+        if (message.id != null && message.hasOwnProperty("id"))
+            object.id = message.id;
+        if (message.response != null && message.hasOwnProperty("response")) {
+            object.response = $root.Response.toObject(message.response, options);
+            if (options.oneofs)
+                object.msg = "response";
+        }
         if (message.state != null && message.hasOwnProperty("state")) {
             object.state = $root.State.toObject(message.state, options);
             if (options.oneofs)
@@ -694,6 +1085,11 @@ export const Bot2Web = $root.Bot2Web = (() => {
             object.yawControllerParams = $root.YawControllerParams.toObject(message.yawControllerParams, options);
             if (options.oneofs)
                 object.msg = "yawControllerParams";
+        }
+        if (message.log != null && message.hasOwnProperty("log")) {
+            object.log = $root.Log.toObject(message.log, options);
+            if (options.oneofs)
+                object.msg = "log";
         }
         return object;
     };
@@ -2185,16 +2581,303 @@ export const YawPidParams = $root.YawPidParams = (() => {
 })();
 
 /**
+ * LogLevel enum.
+ * @exports LogLevel
+ * @enum {number}
+ * @property {number} DEBUG=0 DEBUG value
+ * @property {number} INFO=1 INFO value
+ * @property {number} WARN=2 WARN value
+ * @property {number} ERROR=3 ERROR value
+ * @property {number} FATAL=4 FATAL value
+ */
+export const LogLevel = $root.LogLevel = (() => {
+    const valuesById = {}, values = Object.create(valuesById);
+    values[valuesById[0] = "DEBUG"] = 0;
+    values[valuesById[1] = "INFO"] = 1;
+    values[valuesById[2] = "WARN"] = 2;
+    values[valuesById[3] = "ERROR"] = 3;
+    values[valuesById[4] = "FATAL"] = 4;
+    return values;
+})();
+
+export const Log = $root.Log = (() => {
+
+    /**
+     * Properties of a Log.
+     * @exports ILog
+     * @interface ILog
+     * @property {LogLevel|null} [level] Log level
+     * @property {string|null} [message] Log message
+     */
+
+    /**
+     * Constructs a new Log.
+     * @exports Log
+     * @classdesc Represents a Log.
+     * @implements ILog
+     * @constructor
+     * @param {ILog=} [properties] Properties to set
+     */
+    function Log(properties) {
+        if (properties)
+            for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
+                if (properties[keys[i]] != null)
+                    this[keys[i]] = properties[keys[i]];
+    }
+
+    /**
+     * Log level.
+     * @member {LogLevel} level
+     * @memberof Log
+     * @instance
+     */
+    Log.prototype.level = 0;
+
+    /**
+     * Log message.
+     * @member {string} message
+     * @memberof Log
+     * @instance
+     */
+    Log.prototype.message = "";
+
+    /**
+     * Creates a new Log instance using the specified properties.
+     * @function create
+     * @memberof Log
+     * @static
+     * @param {ILog=} [properties] Properties to set
+     * @returns {Log} Log instance
+     */
+    Log.create = function create(properties) {
+        return new Log(properties);
+    };
+
+    /**
+     * Encodes the specified Log message. Does not implicitly {@link Log.verify|verify} messages.
+     * @function encode
+     * @memberof Log
+     * @static
+     * @param {ILog} message Log message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    Log.encode = function encode(message, writer) {
+        if (!writer)
+            writer = $Writer.create();
+        if (message.level != null && Object.hasOwnProperty.call(message, "level"))
+            writer.uint32(/* id 1, wireType 0 =*/8).int32(message.level);
+        if (message.message != null && Object.hasOwnProperty.call(message, "message"))
+            writer.uint32(/* id 2, wireType 2 =*/18).string(message.message);
+        return writer;
+    };
+
+    /**
+     * Encodes the specified Log message, length delimited. Does not implicitly {@link Log.verify|verify} messages.
+     * @function encodeDelimited
+     * @memberof Log
+     * @static
+     * @param {ILog} message Log message or plain object to encode
+     * @param {$protobuf.Writer} [writer] Writer to encode to
+     * @returns {$protobuf.Writer} Writer
+     */
+    Log.encodeDelimited = function encodeDelimited(message, writer) {
+        return this.encode(message, writer).ldelim();
+    };
+
+    /**
+     * Decodes a Log message from the specified reader or buffer.
+     * @function decode
+     * @memberof Log
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @param {number} [length] Message length if known beforehand
+     * @returns {Log} Log
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    Log.decode = function decode(reader, length) {
+        if (!(reader instanceof $Reader))
+            reader = $Reader.create(reader);
+        let end = length === undefined ? reader.len : reader.pos + length, message = new $root.Log();
+        while (reader.pos < end) {
+            let tag = reader.uint32();
+            switch (tag >>> 3) {
+            case 1: {
+                    message.level = reader.int32();
+                    break;
+                }
+            case 2: {
+                    message.message = reader.string();
+                    break;
+                }
+            default:
+                reader.skipType(tag & 7);
+                break;
+            }
+        }
+        return message;
+    };
+
+    /**
+     * Decodes a Log message from the specified reader or buffer, length delimited.
+     * @function decodeDelimited
+     * @memberof Log
+     * @static
+     * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
+     * @returns {Log} Log
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    Log.decodeDelimited = function decodeDelimited(reader) {
+        if (!(reader instanceof $Reader))
+            reader = new $Reader(reader);
+        return this.decode(reader, reader.uint32());
+    };
+
+    /**
+     * Verifies a Log message.
+     * @function verify
+     * @memberof Log
+     * @static
+     * @param {Object.<string,*>} message Plain object to verify
+     * @returns {string|null} `null` if valid, otherwise the reason why it is not
+     */
+    Log.verify = function verify(message) {
+        if (typeof message !== "object" || message === null)
+            return "object expected";
+        if (message.level != null && message.hasOwnProperty("level"))
+            switch (message.level) {
+            default:
+                return "level: enum value expected";
+            case 0:
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+                break;
+            }
+        if (message.message != null && message.hasOwnProperty("message"))
+            if (!$util.isString(message.message))
+                return "message: string expected";
+        return null;
+    };
+
+    /**
+     * Creates a Log message from a plain object. Also converts values to their respective internal types.
+     * @function fromObject
+     * @memberof Log
+     * @static
+     * @param {Object.<string,*>} object Plain object
+     * @returns {Log} Log
+     */
+    Log.fromObject = function fromObject(object) {
+        if (object instanceof $root.Log)
+            return object;
+        let message = new $root.Log();
+        switch (object.level) {
+        default:
+            if (typeof object.level === "number") {
+                message.level = object.level;
+                break;
+            }
+            break;
+        case "DEBUG":
+        case 0:
+            message.level = 0;
+            break;
+        case "INFO":
+        case 1:
+            message.level = 1;
+            break;
+        case "WARN":
+        case 2:
+            message.level = 2;
+            break;
+        case "ERROR":
+        case 3:
+            message.level = 3;
+            break;
+        case "FATAL":
+        case 4:
+            message.level = 4;
+            break;
+        }
+        if (object.message != null)
+            message.message = String(object.message);
+        return message;
+    };
+
+    /**
+     * Creates a plain object from a Log message. Also converts values to other types if specified.
+     * @function toObject
+     * @memberof Log
+     * @static
+     * @param {Log} message Log
+     * @param {$protobuf.IConversionOptions} [options] Conversion options
+     * @returns {Object.<string,*>} Plain object
+     */
+    Log.toObject = function toObject(message, options) {
+        if (!options)
+            options = {};
+        let object = {};
+        if (options.defaults) {
+            object.level = options.enums === String ? "DEBUG" : 0;
+            object.message = "";
+        }
+        if (message.level != null && message.hasOwnProperty("level"))
+            object.level = options.enums === String ? $root.LogLevel[message.level] === undefined ? message.level : $root.LogLevel[message.level] : message.level;
+        if (message.message != null && message.hasOwnProperty("message"))
+            object.message = message.message;
+        return object;
+    };
+
+    /**
+     * Converts this Log to JSON.
+     * @function toJSON
+     * @memberof Log
+     * @instance
+     * @returns {Object.<string,*>} JSON object
+     */
+    Log.prototype.toJSON = function toJSON() {
+        return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
+    };
+
+    /**
+     * Gets the default type url for Log
+     * @function getTypeUrl
+     * @memberof Log
+     * @static
+     * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+     * @returns {string} The default type url
+     */
+    Log.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+        if (typeUrlPrefix === undefined) {
+            typeUrlPrefix = "type.googleapis.com";
+        }
+        return typeUrlPrefix + "/Log";
+    };
+
+    return Log;
+})();
+
+/**
  * Command enum.
  * @exports Command
  * @enum {number}
  * @property {number} START=0 START value
  * @property {number} STOP=1 STOP value
+ * @property {number} SAVE_PHYSICAL_PARAMS=2 SAVE_PHYSICAL_PARAMS value
+ * @property {number} SAVE_PITCH_CONTROLLER_PARAMS=3 SAVE_PITCH_CONTROLLER_PARAMS value
+ * @property {number} SAVE_YAW_CONTROLLER_PARAMS=4 SAVE_YAW_CONTROLLER_PARAMS value
  */
 export const Command = $root.Command = (() => {
     const valuesById = {}, values = Object.create(valuesById);
     values[valuesById[0] = "START"] = 0;
     values[valuesById[1] = "STOP"] = 1;
+    values[valuesById[2] = "SAVE_PHYSICAL_PARAMS"] = 2;
+    values[valuesById[3] = "SAVE_PITCH_CONTROLLER_PARAMS"] = 3;
+    values[valuesById[4] = "SAVE_YAW_CONTROLLER_PARAMS"] = 4;
     return values;
 })();
 
@@ -2204,6 +2887,7 @@ export const Web2Bot = $root.Web2Bot = (() => {
      * Properties of a Web2Bot.
      * @exports IWeb2Bot
      * @interface IWeb2Bot
+     * @property {number|null} [id] Web2Bot id
      * @property {Command|null} [command] Web2Bot command
      * @property {IPhysicalParams|null} [physicalParams] Web2Bot physicalParams
      * @property {IPitchControllerParams|null} [pitchControllerParams] Web2Bot pitchControllerParams
@@ -2224,6 +2908,14 @@ export const Web2Bot = $root.Web2Bot = (() => {
                 if (properties[keys[i]] != null)
                     this[keys[i]] = properties[keys[i]];
     }
+
+    /**
+     * Web2Bot id.
+     * @member {number} id
+     * @memberof Web2Bot
+     * @instance
+     */
+    Web2Bot.prototype.id = 0;
 
     /**
      * Web2Bot command.
@@ -2295,14 +2987,16 @@ export const Web2Bot = $root.Web2Bot = (() => {
     Web2Bot.encode = function encode(message, writer) {
         if (!writer)
             writer = $Writer.create();
+        if (message.id != null && Object.hasOwnProperty.call(message, "id"))
+            writer.uint32(/* id 1, wireType 0 =*/8).uint32(message.id);
         if (message.command != null && Object.hasOwnProperty.call(message, "command"))
-            writer.uint32(/* id 1, wireType 0 =*/8).int32(message.command);
+            writer.uint32(/* id 2, wireType 0 =*/16).int32(message.command);
         if (message.physicalParams != null && Object.hasOwnProperty.call(message, "physicalParams"))
-            $root.PhysicalParams.encode(message.physicalParams, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
+            $root.PhysicalParams.encode(message.physicalParams, writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
         if (message.pitchControllerParams != null && Object.hasOwnProperty.call(message, "pitchControllerParams"))
-            $root.PitchControllerParams.encode(message.pitchControllerParams, writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
+            $root.PitchControllerParams.encode(message.pitchControllerParams, writer.uint32(/* id 4, wireType 2 =*/34).fork()).ldelim();
         if (message.rollControllerParams != null && Object.hasOwnProperty.call(message, "rollControllerParams"))
-            $root.YawControllerParams.encode(message.rollControllerParams, writer.uint32(/* id 4, wireType 2 =*/34).fork()).ldelim();
+            $root.YawControllerParams.encode(message.rollControllerParams, writer.uint32(/* id 5, wireType 2 =*/42).fork()).ldelim();
         return writer;
     };
 
@@ -2338,18 +3032,22 @@ export const Web2Bot = $root.Web2Bot = (() => {
             let tag = reader.uint32();
             switch (tag >>> 3) {
             case 1: {
-                    message.command = reader.int32();
+                    message.id = reader.uint32();
                     break;
                 }
             case 2: {
-                    message.physicalParams = $root.PhysicalParams.decode(reader, reader.uint32());
+                    message.command = reader.int32();
                     break;
                 }
             case 3: {
-                    message.pitchControllerParams = $root.PitchControllerParams.decode(reader, reader.uint32());
+                    message.physicalParams = $root.PhysicalParams.decode(reader, reader.uint32());
                     break;
                 }
             case 4: {
+                    message.pitchControllerParams = $root.PitchControllerParams.decode(reader, reader.uint32());
+                    break;
+                }
+            case 5: {
                     message.rollControllerParams = $root.YawControllerParams.decode(reader, reader.uint32());
                     break;
                 }
@@ -2389,6 +3087,9 @@ export const Web2Bot = $root.Web2Bot = (() => {
         if (typeof message !== "object" || message === null)
             return "object expected";
         let properties = {};
+        if (message.id != null && message.hasOwnProperty("id"))
+            if (!$util.isInteger(message.id))
+                return "id: integer expected";
         if (message.command != null && message.hasOwnProperty("command")) {
             properties.msg = 1;
             switch (message.command) {
@@ -2396,6 +3097,9 @@ export const Web2Bot = $root.Web2Bot = (() => {
                 return "command: enum value expected";
             case 0:
             case 1:
+            case 2:
+            case 3:
+            case 4:
                 break;
             }
         }
@@ -2444,6 +3148,8 @@ export const Web2Bot = $root.Web2Bot = (() => {
         if (object instanceof $root.Web2Bot)
             return object;
         let message = new $root.Web2Bot();
+        if (object.id != null)
+            message.id = object.id >>> 0;
         switch (object.command) {
         default:
             if (typeof object.command === "number") {
@@ -2458,6 +3164,18 @@ export const Web2Bot = $root.Web2Bot = (() => {
         case "STOP":
         case 1:
             message.command = 1;
+            break;
+        case "SAVE_PHYSICAL_PARAMS":
+        case 2:
+            message.command = 2;
+            break;
+        case "SAVE_PITCH_CONTROLLER_PARAMS":
+        case 3:
+            message.command = 3;
+            break;
+        case "SAVE_YAW_CONTROLLER_PARAMS":
+        case 4:
+            message.command = 4;
             break;
         }
         if (object.physicalParams != null) {
@@ -2491,6 +3209,10 @@ export const Web2Bot = $root.Web2Bot = (() => {
         if (!options)
             options = {};
         let object = {};
+        if (options.defaults)
+            object.id = 0;
+        if (message.id != null && message.hasOwnProperty("id"))
+            object.id = message.id;
         if (message.command != null && message.hasOwnProperty("command")) {
             object.command = options.enums === String ? $root.Command[message.command] === undefined ? message.command : $root.Command[message.command] : message.command;
             if (options.oneofs)

@@ -1,6 +1,19 @@
 syntax = "proto3";
 
 import "params.proto";
+import "log.proto";
+
+// Response to a command.
+message Response {
+    enum Code {
+        OK = 0;
+        ERROR = 1;
+    }
+
+    Code code = 1; // Response code
+    uint32 command_id = 2; // ID of the command that this response is for
+    optional string message = 3; // Optional message
+}
 
 // Current state of the balance bot.
 message State {
@@ -16,10 +29,13 @@ message State {
 }
 
 message Bot2Web {
+    uint32 id = 1;
     oneof msg {
-        State state = 1;
-        PhysicalParams physical_params = 2;
-        PitchControllerParams pitch_controller_params = 3;
-        YawControllerParams yaw_controller_params = 4;
+        Response response = 2;
+        State state = 3;
+        PhysicalParams physical_params = 4;
+        PitchControllerParams pitch_controller_params = 5;
+        YawControllerParams yaw_controller_params = 6;
+        Log log = 7;
     }
 }
