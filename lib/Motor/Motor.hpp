@@ -25,7 +25,7 @@ class Motor {
      *
      * @param[in] id The ID of the motor.
      */
-    Motor(uint8_t id) {
+    Motor(char id) {
         this->id = id;
         this->cmd_speed = 0;
 
@@ -36,7 +36,7 @@ class Motor {
         }
 
         // PWM to overcome static friction defaults to 10% of the PWM range.
-        this->pwm_static_friction_neg = PWM_RANGE / 10;
+        this->pwm_static_friction_neg = -PWM_RANGE / 10;
         this->pwm_static_friction_pos = PWM_RANGE / 10;
     }
 
@@ -70,53 +70,74 @@ class Motor {
      * @return True if the calibration data was loaded successfully, false otherwise.
      */
     bool load_calibration(Preferences* prefs) {
-        String lut_table_key = "motor" + String(this->id) + "_lut";
-        String static_neg_table_key = "motor" + String(this->id) + "_st-";
-        String static_pos_table_key = "motor" + String(this->id) + "_st+";
+        String lut_table_key_str = "motor_" + String(this->id) + "_lut";
+        String static_neg_table_key_str = "motor_" + String(this->id) + "_st-";
+        String static_pos_table_key_str = "motor_" + String(this->id) + "_st+";
+        const char* lut_table_key = lut_table_key_str.c_str();
+        const char* static_neg_table_key = static_neg_table_key_str.c_str();
+        const char* static_pos_table_key = static_pos_table_key_str.c_str();
 
-        // Load the calibration data table names.
-        String lut_table_name = prefs->getString(lut_table_key.c_str());
-        String static_neg_table_name = prefs->getString(static_neg_table_key.c_str());
-        String static_pos_table_name = prefs->getString(static_pos_table_key.c_str());
-        if (lut_table_name.isEmpty() || static_neg_table_name.isEmpty() ||
-            static_pos_table_name.isEmpty()) {
-            Serial.printf("No calibration data found for motor %d\n", this->id);
+        // Verify that the calibration data exists.
+        if (!prefs->isKey(lut_table_key)) {
+            Serial.printf("No LUT found for motor %c\n", this->id);
+            return false;
+        }
+        if (!prefs->isKey(static_neg_table_key)) {
+            Serial.printf("No static friction (neg) found for motor %c\n", this->id);
+            return false;
+        }
+        if (!prefs->isKey(static_pos_table_key)) {
+            Serial.printf("No static friction (pos) found for motor %c\n", this->id);
+            return false;
+        }
+
+        // Verify that the calibration data is the correct type.
+        PreferenceType lut_table_type = prefs->getType(lut_table_key);
+        PreferenceType static_neg_table_type = prefs->getType(static_neg_table_key);
+        PreferenceType static_pos_table_type = prefs->getType(static_pos_table_key);
+        if (lut_table_type != PT_BLOB) {
+            Serial.printf("LUT for motor %c is the wrong type: %d\n", this->id, lut_table_type);
+            return false;
+        }
+        if (static_neg_table_type != PT_I32) {
+            Serial.printf("Static friction (neg) for motor %c is the wrong type: %d\n", this->id,
+                          static_neg_table_type);
+            return false;
+        }
+        if (static_pos_table_type != PT_I32) {
+            Serial.printf("Static friction (pos) for motor %c is the wrong type: %d\n", this->id,
+                          static_pos_table_type);
             return false;
         }
 
         // Check if the calibration is the correct size.
-        uint16_t lut_table_size = prefs->getBytesLength(lut_table_name.c_str());
-        uint16_t static_neg_table_size = prefs->getBytesLength(static_neg_table_name.c_str());
-        uint16_t static_pos_table_size = prefs->getBytesLength(static_pos_table_name.c_str());
-        if (lut_table_size == 0 || static_neg_table_size == 0 || static_pos_table_size == 0) {
-            Serial.printf("No calibration data found for motor %d\n", this->id);
-            return false;
-        }
-        if (lut_table_size != sizeof(this->motor_lut) ||
-            static_neg_table_size != sizeof(this->pwm_static_friction_neg) ||
-            static_pos_table_size != sizeof(this->pwm_static_friction_pos)) {
-            Serial.printf(
-                "Calibration data for motor %d is the wrong size:\n"
-                "| Correct size | Actual size |\n"
-                "| ------------ | ------------ |\n"
-                "| %12d | %12d |\n"
-                "| %12d | %12d |\n"
-                "| %12d | %12d |\n",
-                this->id, sizeof(this->motor_lut), lut_table_size,
-                sizeof(this->pwm_static_friction_neg), static_neg_table_size,
-                sizeof(this->pwm_static_friction_pos), static_pos_table_size);
+        uint16_t lut_table_size = prefs->getBytesLength(lut_table_key);
+        if (lut_table_size != sizeof(this->motor_lut)) {
+            Serial.printf("Calibration data for motor %c is the wrong size: %d (expected %d)\n",
+                          this->id, lut_table_size, sizeof(this->motor_lut));
             return false;
         }
 
         // Load the calibration data.
-        prefs->getBytes(lut_table_name.c_str(), this->motor_lut, sizeof(this->motor_lut));
-        prefs->getBytes(static_neg_table_name.c_str(), &this->pwm_static_friction_neg,
-                        sizeof(this->pwm_static_friction_neg));
-        prefs->getBytes(static_pos_table_name.c_str(), &this->pwm_static_friction_pos,
-                        sizeof(this->pwm_static_friction_pos));
+        prefs->getBytes(lut_table_key, this->motor_lut, sizeof(this->motor_lut));
+        this->pwm_static_friction_neg = prefs->getInt(static_neg_table_key, 0);
+        this->pwm_static_friction_pos = prefs->getInt(static_pos_table_key, 0);
 
-        Serial.printf("Calibration data loaded for motor %d\n", this->id);
+        Serial.printf("Calibration data loaded for motor %c\n", this->id);
         return true;
+    }
+
+    /**
+     * Print the calibration data for the motor to the serial port. This is useful for debugging.
+     */
+    void print_calibration() {
+        Serial.printf("Motor %c calibration data:\n", this->id);
+        Serial.println("  LUT:");
+        for (int i = 0; i < MOTOR_LUT_SIZE; ++i) {
+            Serial.printf("    %4d: %4d\n", i - MAX_RPM, this->motor_lut[i]);
+        }
+        Serial.printf("  Static friction (neg): %d\n", this->pwm_static_friction_neg);
+        Serial.printf("  Static friction (pos): %d\n", this->pwm_static_friction_pos);
     }
 
     /**
@@ -231,7 +252,7 @@ class Motor {
     }
 
    private:
-    uint8_t id;
+    char id;
     Servo motor;
     std::unique_ptr<Encoder> enc;
     int cmd_speed;
