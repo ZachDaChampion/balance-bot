@@ -59,10 +59,4 @@
         grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
         gap: 1rem;
     }
-
-    .txt-group {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-    }
 </style>

@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { Button, Switch, Card, TextFieldOutlined } from 'm3-svelte';
+    import { Button, Card, TextFieldOutlined } from 'm3-svelte';
     import { physical_params } from '$lib/robot_state';
 
     let wheelbase: undefined | string = undefined;
