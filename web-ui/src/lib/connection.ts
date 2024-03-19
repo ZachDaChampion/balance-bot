@@ -1,6 +1,6 @@
 import { get, writable, type Writable } from 'svelte/store';
-import { physical_params } from './robot_state';
-import { PhysicalParams } from './proto/proto';
+import { physical_params, pitch_controller, yaw_controller } from './robot_state';
+import { PhysicalParams, PitchControllerParams, YawControllerParams } from './proto/proto';
 
 const FAKE_WEBSOCKET = true;
 
@@ -40,6 +40,33 @@ export function connect() {
                 motorMaxSpeed: 100,
                 gravity: 9.81,
                 torqueLength: 0.1
+            });
+        });
+
+        pitch_controller.update((_) => {
+            return PitchControllerParams.create({
+                pid: {
+                    kp: 1.0,
+                    ki: 0.0,
+                    kd: 0.0,
+                    integralZeroThreshold: 0.0,
+                    integralSaturationLimit: 0.0,
+                    resetIntegral: true,
+                    ffAddGravity: true
+                }
+            });
+        });
+
+        yaw_controller.update((_) => {
+            return YawControllerParams.create({
+                pid: {
+                    kp: 1.0,
+                    ki: 0.0,
+                    kd: 0.0,
+                    integralZeroThreshold: 0.0,
+                    integralSaturationLimit: 0.0,
+                    resetIntegral: true
+                }
             });
         });
 

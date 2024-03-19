@@ -1,5 +1,5 @@
 <script lang="ts">
-    import { Button, Card, TextFieldOutlined } from 'm3-svelte';
+    import { Button, Card, TextFieldOutlined, CircularProgressIndeterminate } from 'm3-svelte';
     import { physical_params } from '$lib/robot_state';
 
     let wheelbase: undefined | string = undefined;
@@ -7,6 +7,10 @@
     let motor_max_speed: undefined | string = undefined;
     let gravity: undefined | string = undefined;
     let torque_length: undefined | string = undefined;
+
+    physical_params.subscribe((_) => {
+        reset();
+    });
 
     function reset() {
         wheelbase = $physical_params?.wheelBase?.toFixed();
@@ -24,7 +28,9 @@
 <Card type="filled">
     <h1>Physical Characteristics</h1>
     {#if $physical_params === null}
-        <p>Loading...</p>
+        <div style="display: flex; justify-content: center; padding: 16px;">
+            <CircularProgressIndeterminate />
+        </div>
     {:else}
         <form on:submit|preventDefault={send}>
             <div class="txt-group">

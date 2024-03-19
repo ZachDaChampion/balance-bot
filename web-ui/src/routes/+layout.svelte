@@ -1,5 +1,5 @@
 <script>
-    import { StyleFromScheme, Dialog, Button, Snackbar } from 'm3-svelte';
+    import { StyleFromScheme, Dialog, Button, CircularProgressIndeterminate } from 'm3-svelte';
     import { websocket_state, connect } from '$lib/connection';
     import { goto } from '$app/navigation';
 </script>
@@ -107,7 +107,18 @@
     closeOnEsc={false}
     bind:open={$websocket_state.is_connecting}
 >
-    <p>Attempting to connect to <code>{$websocket_state.address}</code>...</p>
+    <div class="loading">
+        <CircularProgressIndeterminate />
+        <p>Attempting to connect to <code>{$websocket_state.address}</code></p>
+    </div>
 </Dialog>
 
 <slot />
+
+<style>
+    .loading {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 1rem;
+    }
+</style>
