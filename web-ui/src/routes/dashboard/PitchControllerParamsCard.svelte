@@ -54,12 +54,12 @@
             <SegmentedButtonContainer>
                 <input
                     type="radio"
-                    name="controller-select"
-                    id="controller-pid"
+                    name="pitch-controller-select"
+                    id="pitch-controller-pid"
                     value="pid"
                     bind:group={controller_type}
                 />
-                <SegmentedButtonItem input="controller-pid">PID</SegmentedButtonItem>
+                <SegmentedButtonItem input="pitch-controller-pid">PID</SegmentedButtonItem>
             </SegmentedButtonContainer>
         </div>
 

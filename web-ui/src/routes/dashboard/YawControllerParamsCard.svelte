@@ -42,7 +42,7 @@
 </script>
 
 <Card type="filled">
-    <h1>Pitch Controller</h1>
+    <h1>Yaw Controller</h1>
     {#if $yaw_controller === null}
         <div style="display: flex; justify-content: center; padding: 16px;">
             <CircularProgressIndeterminate />
@@ -52,12 +52,12 @@
             <SegmentedButtonContainer>
                 <input
                     type="radio"
-                    name="controller-select"
-                    id="controller-pid"
+                    name="yaw-controller-select"
+                    id="yaw-controller-pid"
                     value="pid"
                     bind:group={controller_type}
                 />
-                <SegmentedButtonItem input="controller-pid">PID</SegmentedButtonItem>
+                <SegmentedButtonItem input="yaw-controller-pid">PID</SegmentedButtonItem>
             </SegmentedButtonContainer>
         </div>
 
