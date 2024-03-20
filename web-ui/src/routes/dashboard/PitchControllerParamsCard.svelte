@@ -44,72 +44,81 @@
 </script>
 
 <Card type="filled">
-    <h1>Pitch Controller</h1>
-    {#if $pitch_controller === null}
-        <div style="display: flex; justify-content: center; padding: 16px;">
-            <CircularProgressIndeterminate />
-        </div>
-    {:else}
-        <div id="controller-select">
-            <SegmentedButtonContainer>
-                <input
-                    type="radio"
-                    name="pitch-controller-select"
-                    id="pitch-controller-pid"
-                    value="pid"
-                    bind:group={controller_type}
-                />
-                <SegmentedButtonItem input="pitch-controller-pid">PID</SegmentedButtonItem>
-            </SegmentedButtonContainer>
-        </div>
-
-        <form on:submit|preventDefault={send}>
-            <div class="txt-group">
-                <TextFieldOutlined
-                    --m3-util-background="var(--m3-scheme-surface-container-highest)"
-                    name="Kp"
-                    bind:value={pid_kp}
-                />
-                <TextFieldOutlined
-                    --m3-util-background="var(--m3-scheme-surface-container-highest)"
-                    name="Ki"
-                    bind:value={pid_ki}
-                />
-                <TextFieldOutlined
-                    --m3-util-background="var(--m3-scheme-surface-container-highest)"
-                    name="Kd"
-                    bind:value={pid_kd}
-                />
-                <TextFieldOutlined
-                    --m3-util-background="var(--m3-scheme-surface-container-highest)"
-                    name="Integral deadband"
-                    bind:value={pid_integral_zero_threshold}
-                />
-                <TextFieldOutlined
-                    --m3-util-background="var(--m3-scheme-surface-container-highest)"
-                    name="Integral saturation limit"
-                    bind:value={pid_integral_saturation}
-                />
-                <div class="switch-group">
-                    <p>Reset integral when crossing 0</p>
-                    <label for={undefined}>
-                        <Switch bind:checked={pid_reset_integral} />
-                    </label>
-                    <p>Account for force of gravity</p>
-                    <label for={undefined}>
-                        <Switch bind:checked={pid_ff_add_gravity} />
-                    </label>
-                </div>
-                <div class="btn-group">
-                    <Button type="filled" on:click={send}>Send to BalancBot</Button>
-                    <Button type="outlined" on:click={reset}>Reset</Button>
-                </div>
+    <div id="card-content">
+        <h1>Pitch Controller</h1>
+        {#if $pitch_controller === null}
+            <div style="display: flex; justify-content: center; padding: 16px;">
+                <CircularProgressIndeterminate />
             </div>
-        </form>
-    {/if}
+        {:else}
+            <div id="controller-select">
+                <SegmentedButtonContainer>
+                    <input
+                        type="radio"
+                        name="pitch-controller-select"
+                        id="pitch-controller-pid"
+                        value="pid"
+                        bind:group={controller_type}
+                    />
+                    <SegmentedButtonItem input="pitch-controller-pid">PID</SegmentedButtonItem>
+                </SegmentedButtonContainer>
+            </div>
+
+            <form on:submit|preventDefault={send}>
+                <div class="txt-group">
+                    <TextFieldOutlined
+                        --m3-util-background="var(--m3-scheme-surface-container-highest)"
+                        name="Kp"
+                        bind:value={pid_kp}
+                    />
+                    <TextFieldOutlined
+                        --m3-util-background="var(--m3-scheme-surface-container-highest)"
+                        name="Ki"
+                        bind:value={pid_ki}
+                    />
+                    <TextFieldOutlined
+                        --m3-util-background="var(--m3-scheme-surface-container-highest)"
+                        name="Kd"
+                        bind:value={pid_kd}
+                    />
+                    <TextFieldOutlined
+                        --m3-util-background="var(--m3-scheme-surface-container-highest)"
+                        name="Integral deadband"
+                        bind:value={pid_integral_zero_threshold}
+                    />
+                    <TextFieldOutlined
+                        --m3-util-background="var(--m3-scheme-surface-container-highest)"
+                        name="Integral saturation limit"
+                        bind:value={pid_integral_saturation}
+                    />
+                    <div class="switch-group">
+                        <p>Reset integral when crossing 0</p>
+                        <label for={undefined}>
+                            <Switch bind:checked={pid_reset_integral} />
+                        </label>
+                        <p>Account for force of gravity</p>
+                        <label for={undefined}>
+                            <Switch bind:checked={pid_ff_add_gravity} />
+                        </label>
+                    </div>
+                </div>
+            </form>
+            <div style="min-height: 1rem; flex: 1 1 auto;" />
+            <div class="btn-group">
+                <Button type="filled" on:click={send}>Send to BalancBot</Button>
+                <Button type="outlined" on:click={reset}>Reset</Button>
+            </div>
+        {/if}
+    </div>
 </Card>
 
 <style>
+    #card-content {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
     #controller-select {
         margin-bottom: 2rem;
     }

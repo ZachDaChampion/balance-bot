@@ -26,50 +26,58 @@
 </script>
 
 <Card type="filled">
-    <h1>Physical Characteristics</h1>
-    {#if $physical_params === null}
-        <div style="display: flex; justify-content: center; padding: 16px;">
-            <CircularProgressIndeterminate />
-        </div>
-    {:else}
-        <form on:submit|preventDefault={send}>
-            <div class="txt-group">
-                <TextFieldOutlined
-                    --m3-util-background="var(--m3-scheme-surface-container-highest)"
-                    name="Wheelbase (m)"
-                    bind:value={wheelbase}
-                />
-                <TextFieldOutlined
-                    --m3-util-background="var(--m3-scheme-surface-container-highest)"
-                    name="Wheel radius (m)"
-                    bind:value={wheel_radius}
-                />
-                <TextFieldOutlined
-                    --m3-util-background="var(--m3-scheme-surface-container-highest)"
-                    name="Motor max speed (rpm)"
-                    bind:value={motor_max_speed}
-                />
-                <TextFieldOutlined
-                    --m3-util-background="var(--m3-scheme-surface-container-highest)"
-                    name="Gravity (m/s²)"
-                    bind:value={gravity}
-                />
-                <TextFieldOutlined
-                    --m3-util-background="var(--m3-scheme-surface-container-highest)"
-                    name="Torque length (N·m)"
-                    bind:value={torque_length}
-                />
+    <div id="card-content">
+        <h1>Physical Characteristics</h1>
+        {#if $physical_params === null}
+            <div style="display: flex; justify-content: center; padding: 16px;">
+                <CircularProgressIndeterminate />
             </div>
-            <div style="height: 1rem;" />
+        {:else}
+            <form on:submit|preventDefault={send}>
+                <div class="txt-group">
+                    <TextFieldOutlined
+                        --m3-util-background="var(--m3-scheme-surface-container-highest)"
+                        name="Wheelbase (m)"
+                        bind:value={wheelbase}
+                    />
+                    <TextFieldOutlined
+                        --m3-util-background="var(--m3-scheme-surface-container-highest)"
+                        name="Wheel radius (m)"
+                        bind:value={wheel_radius}
+                    />
+                    <TextFieldOutlined
+                        --m3-util-background="var(--m3-scheme-surface-container-highest)"
+                        name="Motor max speed (rpm)"
+                        bind:value={motor_max_speed}
+                    />
+                    <TextFieldOutlined
+                        --m3-util-background="var(--m3-scheme-surface-container-highest)"
+                        name="Gravity (m/s²)"
+                        bind:value={gravity}
+                    />
+                    <TextFieldOutlined
+                        --m3-util-background="var(--m3-scheme-surface-container-highest)"
+                        name="Torque length (N·m)"
+                        bind:value={torque_length}
+                    />
+                </div>
+            </form>
+            <div style="min-height: 2rem; flex: 1 1 auto;" />
             <div class="btn-group">
                 <Button type="filled" on:click={send}>Send to BalancBot</Button>
                 <Button type="outlined" on:click={reset}>Reset</Button>
             </div>
-        </form>
-    {/if}
+        {/if}
+    </div>
 </Card>
 
 <style>
+    #card-content {
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
     .btn-group {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
