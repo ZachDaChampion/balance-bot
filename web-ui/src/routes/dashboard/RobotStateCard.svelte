@@ -4,12 +4,26 @@
     import { connect, websocket_state } from '$lib/connection';
     import { robot_state } from '$lib/robot_state';
     import LabelledSwitch from '$lib/LabelledSwitch.svelte';
+    import { send_command_message } from '$lib/messaging';
+    import { Command } from '$lib/proto/proto';
 
     let active: boolean = false;
     let active_switch_timeout: NodeJS.Timeout | undefined = undefined;
 
     function set_active(val: boolean) {
-        // TODO: Connect to the WebSocket
+        if (!$websocket_state.connected || !$websocket_state.connection) return;
+
+        const cmd = val ? Command.START : Command.STOP;
+        send_command_message(cmd)
+            .then((response) => {
+                console.log(
+                    `Received response for ${response.commandId} with code ${response.code}`
+                );
+            })
+            .catch((error) => {
+                console.error(error);
+            });
+
         active_switch_timeout = setTimeout(() => {
             active = $robot_state?.active ?? false;
         }, 100);

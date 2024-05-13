@@ -3,7 +3,7 @@ import { physical_params, pitch_controller, yaw_controller } from './robot_state
 import { PhysicalParams, PitchControllerParams, YawControllerParams } from './proto/proto';
 import { receive_message } from './messaging';
 
-const FAKE_WEBSOCKET = true;
+const FAKE_WEBSOCKET = false;
 
 interface WebSocketState {
     address: string;

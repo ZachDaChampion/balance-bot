@@ -75,7 +75,7 @@ async function send_message(msg: IWeb2Bot, max_timeout = 100): Promise<IResponse
     if (!ws.connected || !ws.connection) throw new Error('Not connected to the robot.');
 
     // Construct response promise and add it to the list of pending promises.
-    if (!msg.id) throw new Error('Message ID is required.');
+    if (!msg.id && msg.id !== 0) throw new Error('Message ID is required.');
     const response_promise = new ResponsePromise(msg.id, max_timeout);
     response_promises.update((promises) => [...promises, response_promise]);
 
