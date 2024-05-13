@@ -1,8 +1,9 @@
 <script lang="ts">
-    import { Button, Switch, Card } from 'm3-svelte';
+    import { Button, Card } from 'm3-svelte';
     import { goto } from '$app/navigation';
     import { connect, websocket_state } from '$lib/connection';
     import { robot_state } from '$lib/robot_state';
+    import LabelledSwitch from '$lib/LabelledSwitch.svelte';
 
     let active: boolean = false;
     let active_switch_timeout: NodeJS.Timeout | undefined = undefined;
@@ -32,26 +33,13 @@
         </div>
     {:else}
         <p>Connected at <code>{$websocket_state.address}</code>.</p>
-        <div class="toggle-container">
-            <p>Balancing:</p>
-            <label for={undefined}>
-                <Switch bind:checked={active} />
-            </label>
-        </div>
+        <LabelledSwitch label="Balancing:" bind:checked={active} />
     {/if}
 </Card>
 
 <style>
     .error {
         color: rgb(var(--m3-scheme-error));
-    }
-
-    .toggle-container {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: start;
-        gap: 1rem;
     }
 
     .btn-group {
