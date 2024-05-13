@@ -1,38 +1,36 @@
-# create-svelte
+# Compiling Proto
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/main/packages/create-svelte).
+## Automatic
 
-## Creating a project
+### Windows (Powershell)
 
-If you're seeing this, you've probably already done this step. Congrats!
+Run `./genearte_proto.ps1` from within the `web-ui` directory.
 
-```bash
-# create a new project in the current directory
-npm create svelte@latest
+## Manual
 
-# create a new project in my-app
-npm create svelte@latest my-app
-```
-
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+First, generate an initial JS file with:
 
 ```bash
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
+npx pbjs -t static-module -w es6 --es6 -p ../proto -o src/lib/proto/proto.js ../proto/web2bot.proto ../proto/bot2web.proto
 ```
 
-## Building
+Next, search-and-replace all instances of `@exports` in `src/lib/proto/proto.js` with `@name`
+(see [this GitHub issue](https://github.com/protobufjs/protobuf.js/issues/1414#issuecomment-1290725151)).
 
-To create a production version of your app:
+Now run:
 
 ```bash
-npm run build
+npx pbts -o src/lib/proto/proto.d.ts src/lib/proto/proto.js
 ```
 
-You can preview the production build with `npm run preview`.
+Finally, change the second line of `src/lib/proto/proto.js` from
 
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+```js
+import * as $protobuf from 'protobufjs/minimal';
+```
+
+to
+
+```js
+import $protobuf from 'protobufjs/minimal';
+```

@@ -1,401 +1,132 @@
 import * as $protobuf from "protobufjs";
 import Long = require("long");
-/** Properties of a Response. */
-export interface IResponse {
-
-    /** Response code */
-    code?: (Response.Code|null);
-
-    /** Response commandId */
-    commandId?: (number|null);
-
-    /** Response message */
-    message?: (string|null);
+/** Command enum. */
+export enum Command {
+    START = 0,
+    STOP = 1,
+    SAVE_PHYSICAL_PARAMS = 2,
+    SAVE_PITCH_CONTROLLER_PARAMS = 3,
+    SAVE_YAW_CONTROLLER_PARAMS = 4
 }
 
-/** Represents a Response. */
-export class Response implements IResponse {
+/** Properties of a Web2Bot. */
+export interface IWeb2Bot {
 
-    /**
-     * Constructs a new Response.
-     * @param [properties] Properties to set
-     */
-    constructor(properties?: IResponse);
-
-    /** Response code. */
-    public code: Response.Code;
-
-    /** Response commandId. */
-    public commandId: number;
-
-    /** Response message. */
-    public message?: (string|null);
-
-    /** Response _message. */
-    public _message?: "message";
-
-    /**
-     * Creates a new Response instance using the specified properties.
-     * @param [properties] Properties to set
-     * @returns Response instance
-     */
-    public static create(properties?: IResponse): Response;
-
-    /**
-     * Encodes the specified Response message. Does not implicitly {@link Response.verify|verify} messages.
-     * @param message Response message or plain object to encode
-     * @param [writer] Writer to encode to
-     * @returns Writer
-     */
-    public static encode(message: IResponse, writer?: $protobuf.Writer): $protobuf.Writer;
-
-    /**
-     * Encodes the specified Response message, length delimited. Does not implicitly {@link Response.verify|verify} messages.
-     * @param message Response message or plain object to encode
-     * @param [writer] Writer to encode to
-     * @returns Writer
-     */
-    public static encodeDelimited(message: IResponse, writer?: $protobuf.Writer): $protobuf.Writer;
-
-    /**
-     * Decodes a Response message from the specified reader or buffer.
-     * @param reader Reader or buffer to decode from
-     * @param [length] Message length if known beforehand
-     * @returns Response
-     * @throws {Error} If the payload is not a reader or valid buffer
-     * @throws {$protobuf.util.ProtocolError} If required fields are missing
-     */
-    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): Response;
-
-    /**
-     * Decodes a Response message from the specified reader or buffer, length delimited.
-     * @param reader Reader or buffer to decode from
-     * @returns Response
-     * @throws {Error} If the payload is not a reader or valid buffer
-     * @throws {$protobuf.util.ProtocolError} If required fields are missing
-     */
-    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): Response;
-
-    /**
-     * Verifies a Response message.
-     * @param message Plain object to verify
-     * @returns `null` if valid, otherwise the reason why it is not
-     */
-    public static verify(message: { [k: string]: any }): (string|null);
-
-    /**
-     * Creates a Response message from a plain object. Also converts values to their respective internal types.
-     * @param object Plain object
-     * @returns Response
-     */
-    public static fromObject(object: { [k: string]: any }): Response;
-
-    /**
-     * Creates a plain object from a Response message. Also converts values to other types if specified.
-     * @param message Response
-     * @param [options] Conversion options
-     * @returns Plain object
-     */
-    public static toObject(message: Response, options?: $protobuf.IConversionOptions): { [k: string]: any };
-
-    /**
-     * Converts this Response to JSON.
-     * @returns JSON object
-     */
-    public toJSON(): { [k: string]: any };
-
-    /**
-     * Gets the default type url for Response
-     * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
-     * @returns The default type url
-     */
-    public static getTypeUrl(typeUrlPrefix?: string): string;
-}
-
-export namespace Response {
-
-    /** Code enum. */
-    enum Code {
-        OK = 0,
-        ERROR = 1
-    }
-}
-
-/** Properties of a State. */
-export interface IState {
-
-    /** State pitch */
-    pitch?: (number|null);
-
-    /** State yaw */
-    yaw?: (number|null);
-
-    /** State pitchRate */
-    pitchRate?: (number|null);
-
-    /** State yawRate */
-    yawRate?: (number|null);
-
-    /** State leftMotorAngle */
-    leftMotorAngle?: (number|null);
-
-    /** State rightMotorAngle */
-    rightMotorAngle?: (number|null);
-
-    /** State leftMotorSpeed */
-    leftMotorSpeed?: (number|null);
-
-    /** State rightMotorSpeed */
-    rightMotorSpeed?: (number|null);
-
-    /** State active */
-    active?: (boolean|null);
-}
-
-/** Represents a State. */
-export class State implements IState {
-
-    /**
-     * Constructs a new State.
-     * @param [properties] Properties to set
-     */
-    constructor(properties?: IState);
-
-    /** State pitch. */
-    public pitch: number;
-
-    /** State yaw. */
-    public yaw: number;
-
-    /** State pitchRate. */
-    public pitchRate: number;
-
-    /** State yawRate. */
-    public yawRate: number;
-
-    /** State leftMotorAngle. */
-    public leftMotorAngle: number;
-
-    /** State rightMotorAngle. */
-    public rightMotorAngle: number;
-
-    /** State leftMotorSpeed. */
-    public leftMotorSpeed: number;
-
-    /** State rightMotorSpeed. */
-    public rightMotorSpeed: number;
-
-    /** State active. */
-    public active: boolean;
-
-    /**
-     * Creates a new State instance using the specified properties.
-     * @param [properties] Properties to set
-     * @returns State instance
-     */
-    public static create(properties?: IState): State;
-
-    /**
-     * Encodes the specified State message. Does not implicitly {@link State.verify|verify} messages.
-     * @param message State message or plain object to encode
-     * @param [writer] Writer to encode to
-     * @returns Writer
-     */
-    public static encode(message: IState, writer?: $protobuf.Writer): $protobuf.Writer;
-
-    /**
-     * Encodes the specified State message, length delimited. Does not implicitly {@link State.verify|verify} messages.
-     * @param message State message or plain object to encode
-     * @param [writer] Writer to encode to
-     * @returns Writer
-     */
-    public static encodeDelimited(message: IState, writer?: $protobuf.Writer): $protobuf.Writer;
-
-    /**
-     * Decodes a State message from the specified reader or buffer.
-     * @param reader Reader or buffer to decode from
-     * @param [length] Message length if known beforehand
-     * @returns State
-     * @throws {Error} If the payload is not a reader or valid buffer
-     * @throws {$protobuf.util.ProtocolError} If required fields are missing
-     */
-    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): State;
-
-    /**
-     * Decodes a State message from the specified reader or buffer, length delimited.
-     * @param reader Reader or buffer to decode from
-     * @returns State
-     * @throws {Error} If the payload is not a reader or valid buffer
-     * @throws {$protobuf.util.ProtocolError} If required fields are missing
-     */
-    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): State;
-
-    /**
-     * Verifies a State message.
-     * @param message Plain object to verify
-     * @returns `null` if valid, otherwise the reason why it is not
-     */
-    public static verify(message: { [k: string]: any }): (string|null);
-
-    /**
-     * Creates a State message from a plain object. Also converts values to their respective internal types.
-     * @param object Plain object
-     * @returns State
-     */
-    public static fromObject(object: { [k: string]: any }): State;
-
-    /**
-     * Creates a plain object from a State message. Also converts values to other types if specified.
-     * @param message State
-     * @param [options] Conversion options
-     * @returns Plain object
-     */
-    public static toObject(message: State, options?: $protobuf.IConversionOptions): { [k: string]: any };
-
-    /**
-     * Converts this State to JSON.
-     * @returns JSON object
-     */
-    public toJSON(): { [k: string]: any };
-
-    /**
-     * Gets the default type url for State
-     * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
-     * @returns The default type url
-     */
-    public static getTypeUrl(typeUrlPrefix?: string): string;
-}
-
-/** Properties of a Bot2Web. */
-export interface IBot2Web {
-
-    /** Bot2Web id */
+    /** Web2Bot id */
     id?: (number|null);
 
-    /** Bot2Web response */
-    response?: (IResponse|null);
+    /** Web2Bot command */
+    command?: (Command|null);
 
-    /** Bot2Web state */
-    state?: (IState|null);
-
-    /** Bot2Web physicalParams */
+    /** Web2Bot physicalParams */
     physicalParams?: (IPhysicalParams|null);
 
-    /** Bot2Web pitchControllerParams */
+    /** Web2Bot pitchControllerParams */
     pitchControllerParams?: (IPitchControllerParams|null);
 
-    /** Bot2Web yawControllerParams */
-    yawControllerParams?: (IYawControllerParams|null);
-
-    /** Bot2Web log */
-    log?: (ILog|null);
+    /** Web2Bot rollControllerParams */
+    rollControllerParams?: (IYawControllerParams|null);
 }
 
-/** Represents a Bot2Web. */
-export class Bot2Web implements IBot2Web {
+/** Represents a Web2Bot. */
+export class Web2Bot implements IWeb2Bot {
 
     /**
-     * Constructs a new Bot2Web.
+     * Constructs a new Web2Bot.
      * @param [properties] Properties to set
      */
-    constructor(properties?: IBot2Web);
+    constructor(properties?: IWeb2Bot);
 
-    /** Bot2Web id. */
+    /** Web2Bot id. */
     public id: number;
 
-    /** Bot2Web response. */
-    public response?: (IResponse|null);
+    /** Web2Bot command. */
+    public command?: (Command|null);
 
-    /** Bot2Web state. */
-    public state?: (IState|null);
-
-    /** Bot2Web physicalParams. */
+    /** Web2Bot physicalParams. */
     public physicalParams?: (IPhysicalParams|null);
 
-    /** Bot2Web pitchControllerParams. */
+    /** Web2Bot pitchControllerParams. */
     public pitchControllerParams?: (IPitchControllerParams|null);
 
-    /** Bot2Web yawControllerParams. */
-    public yawControllerParams?: (IYawControllerParams|null);
+    /** Web2Bot rollControllerParams. */
+    public rollControllerParams?: (IYawControllerParams|null);
 
-    /** Bot2Web log. */
-    public log?: (ILog|null);
-
-    /** Bot2Web msg. */
-    public msg?: ("response"|"state"|"physicalParams"|"pitchControllerParams"|"yawControllerParams"|"log");
+    /** Web2Bot msg. */
+    public msg?: ("command"|"physicalParams"|"pitchControllerParams"|"rollControllerParams");
 
     /**
-     * Creates a new Bot2Web instance using the specified properties.
+     * Creates a new Web2Bot instance using the specified properties.
      * @param [properties] Properties to set
-     * @returns Bot2Web instance
+     * @returns Web2Bot instance
      */
-    public static create(properties?: IBot2Web): Bot2Web;
+    public static create(properties?: IWeb2Bot): Web2Bot;
 
     /**
-     * Encodes the specified Bot2Web message. Does not implicitly {@link Bot2Web.verify|verify} messages.
-     * @param message Bot2Web message or plain object to encode
+     * Encodes the specified Web2Bot message. Does not implicitly {@link Web2Bot.verify|verify} messages.
+     * @param message Web2Bot message or plain object to encode
      * @param [writer] Writer to encode to
      * @returns Writer
      */
-    public static encode(message: IBot2Web, writer?: $protobuf.Writer): $protobuf.Writer;
+    public static encode(message: IWeb2Bot, writer?: $protobuf.Writer): $protobuf.Writer;
 
     /**
-     * Encodes the specified Bot2Web message, length delimited. Does not implicitly {@link Bot2Web.verify|verify} messages.
-     * @param message Bot2Web message or plain object to encode
+     * Encodes the specified Web2Bot message, length delimited. Does not implicitly {@link Web2Bot.verify|verify} messages.
+     * @param message Web2Bot message or plain object to encode
      * @param [writer] Writer to encode to
      * @returns Writer
      */
-    public static encodeDelimited(message: IBot2Web, writer?: $protobuf.Writer): $protobuf.Writer;
+    public static encodeDelimited(message: IWeb2Bot, writer?: $protobuf.Writer): $protobuf.Writer;
 
     /**
-     * Decodes a Bot2Web message from the specified reader or buffer.
+     * Decodes a Web2Bot message from the specified reader or buffer.
      * @param reader Reader or buffer to decode from
      * @param [length] Message length if known beforehand
-     * @returns Bot2Web
+     * @returns Web2Bot
      * @throws {Error} If the payload is not a reader or valid buffer
      * @throws {$protobuf.util.ProtocolError} If required fields are missing
      */
-    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): Bot2Web;
+    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): Web2Bot;
 
     /**
-     * Decodes a Bot2Web message from the specified reader or buffer, length delimited.
+     * Decodes a Web2Bot message from the specified reader or buffer, length delimited.
      * @param reader Reader or buffer to decode from
-     * @returns Bot2Web
+     * @returns Web2Bot
      * @throws {Error} If the payload is not a reader or valid buffer
      * @throws {$protobuf.util.ProtocolError} If required fields are missing
      */
-    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): Bot2Web;
+    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): Web2Bot;
 
     /**
-     * Verifies a Bot2Web message.
+     * Verifies a Web2Bot message.
      * @param message Plain object to verify
      * @returns `null` if valid, otherwise the reason why it is not
      */
     public static verify(message: { [k: string]: any }): (string|null);
 
     /**
-     * Creates a Bot2Web message from a plain object. Also converts values to their respective internal types.
+     * Creates a Web2Bot message from a plain object. Also converts values to their respective internal types.
      * @param object Plain object
-     * @returns Bot2Web
+     * @returns Web2Bot
      */
-    public static fromObject(object: { [k: string]: any }): Bot2Web;
+    public static fromObject(object: { [k: string]: any }): Web2Bot;
 
     /**
-     * Creates a plain object from a Bot2Web message. Also converts values to other types if specified.
-     * @param message Bot2Web
+     * Creates a plain object from a Web2Bot message. Also converts values to other types if specified.
+     * @param message Web2Bot
      * @param [options] Conversion options
      * @returns Plain object
      */
-    public static toObject(message: Bot2Web, options?: $protobuf.IConversionOptions): { [k: string]: any };
+    public static toObject(message: Web2Bot, options?: $protobuf.IConversionOptions): { [k: string]: any };
 
     /**
-     * Converts this Bot2Web to JSON.
+     * Converts this Web2Bot to JSON.
      * @returns JSON object
      */
     public toJSON(): { [k: string]: any };
 
     /**
-     * Gets the default type url for Bot2Web
+     * Gets the default type url for Web2Bot
      * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
      * @returns The default type url
      */
@@ -995,6 +726,414 @@ export class YawPidParams implements IYawPidParams {
     public static getTypeUrl(typeUrlPrefix?: string): string;
 }
 
+/** Properties of a Response. */
+export interface IResponse {
+
+    /** Response code */
+    code?: (Response.Code|null);
+
+    /** Response commandId */
+    commandId?: (number|null);
+
+    /** Response message */
+    message?: (string|null);
+}
+
+/** Represents a Response. */
+export class Response implements IResponse {
+
+    /**
+     * Constructs a new Response.
+     * @param [properties] Properties to set
+     */
+    constructor(properties?: IResponse);
+
+    /** Response code. */
+    public code: Response.Code;
+
+    /** Response commandId. */
+    public commandId: number;
+
+    /** Response message. */
+    public message?: (string|null);
+
+    /** Response _message. */
+    public _message?: "message";
+
+    /**
+     * Creates a new Response instance using the specified properties.
+     * @param [properties] Properties to set
+     * @returns Response instance
+     */
+    public static create(properties?: IResponse): Response;
+
+    /**
+     * Encodes the specified Response message. Does not implicitly {@link Response.verify|verify} messages.
+     * @param message Response message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encode(message: IResponse, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Encodes the specified Response message, length delimited. Does not implicitly {@link Response.verify|verify} messages.
+     * @param message Response message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encodeDelimited(message: IResponse, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Decodes a Response message from the specified reader or buffer.
+     * @param reader Reader or buffer to decode from
+     * @param [length] Message length if known beforehand
+     * @returns Response
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): Response;
+
+    /**
+     * Decodes a Response message from the specified reader or buffer, length delimited.
+     * @param reader Reader or buffer to decode from
+     * @returns Response
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): Response;
+
+    /**
+     * Verifies a Response message.
+     * @param message Plain object to verify
+     * @returns `null` if valid, otherwise the reason why it is not
+     */
+    public static verify(message: { [k: string]: any }): (string|null);
+
+    /**
+     * Creates a Response message from a plain object. Also converts values to their respective internal types.
+     * @param object Plain object
+     * @returns Response
+     */
+    public static fromObject(object: { [k: string]: any }): Response;
+
+    /**
+     * Creates a plain object from a Response message. Also converts values to other types if specified.
+     * @param message Response
+     * @param [options] Conversion options
+     * @returns Plain object
+     */
+    public static toObject(message: Response, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+    /**
+     * Converts this Response to JSON.
+     * @returns JSON object
+     */
+    public toJSON(): { [k: string]: any };
+
+    /**
+     * Gets the default type url for Response
+     * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+     * @returns The default type url
+     */
+    public static getTypeUrl(typeUrlPrefix?: string): string;
+}
+
+export namespace Response {
+
+    /** Code enum. */
+    enum Code {
+        OK = 0,
+        ERROR = 1
+    }
+}
+
+/** Properties of a State. */
+export interface IState {
+
+    /** State pitch */
+    pitch?: (number|null);
+
+    /** State yaw */
+    yaw?: (number|null);
+
+    /** State pitchRate */
+    pitchRate?: (number|null);
+
+    /** State yawRate */
+    yawRate?: (number|null);
+
+    /** State leftMotorAngle */
+    leftMotorAngle?: (number|null);
+
+    /** State rightMotorAngle */
+    rightMotorAngle?: (number|null);
+
+    /** State leftMotorSpeed */
+    leftMotorSpeed?: (number|null);
+
+    /** State rightMotorSpeed */
+    rightMotorSpeed?: (number|null);
+
+    /** State active */
+    active?: (boolean|null);
+
+    /** State timestamp */
+    timestamp?: (number|null);
+}
+
+/** Represents a State. */
+export class State implements IState {
+
+    /**
+     * Constructs a new State.
+     * @param [properties] Properties to set
+     */
+    constructor(properties?: IState);
+
+    /** State pitch. */
+    public pitch: number;
+
+    /** State yaw. */
+    public yaw: number;
+
+    /** State pitchRate. */
+    public pitchRate: number;
+
+    /** State yawRate. */
+    public yawRate: number;
+
+    /** State leftMotorAngle. */
+    public leftMotorAngle: number;
+
+    /** State rightMotorAngle. */
+    public rightMotorAngle: number;
+
+    /** State leftMotorSpeed. */
+    public leftMotorSpeed: number;
+
+    /** State rightMotorSpeed. */
+    public rightMotorSpeed: number;
+
+    /** State active. */
+    public active: boolean;
+
+    /** State timestamp. */
+    public timestamp: number;
+
+    /**
+     * Creates a new State instance using the specified properties.
+     * @param [properties] Properties to set
+     * @returns State instance
+     */
+    public static create(properties?: IState): State;
+
+    /**
+     * Encodes the specified State message. Does not implicitly {@link State.verify|verify} messages.
+     * @param message State message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encode(message: IState, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Encodes the specified State message, length delimited. Does not implicitly {@link State.verify|verify} messages.
+     * @param message State message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encodeDelimited(message: IState, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Decodes a State message from the specified reader or buffer.
+     * @param reader Reader or buffer to decode from
+     * @param [length] Message length if known beforehand
+     * @returns State
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): State;
+
+    /**
+     * Decodes a State message from the specified reader or buffer, length delimited.
+     * @param reader Reader or buffer to decode from
+     * @returns State
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): State;
+
+    /**
+     * Verifies a State message.
+     * @param message Plain object to verify
+     * @returns `null` if valid, otherwise the reason why it is not
+     */
+    public static verify(message: { [k: string]: any }): (string|null);
+
+    /**
+     * Creates a State message from a plain object. Also converts values to their respective internal types.
+     * @param object Plain object
+     * @returns State
+     */
+    public static fromObject(object: { [k: string]: any }): State;
+
+    /**
+     * Creates a plain object from a State message. Also converts values to other types if specified.
+     * @param message State
+     * @param [options] Conversion options
+     * @returns Plain object
+     */
+    public static toObject(message: State, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+    /**
+     * Converts this State to JSON.
+     * @returns JSON object
+     */
+    public toJSON(): { [k: string]: any };
+
+    /**
+     * Gets the default type url for State
+     * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+     * @returns The default type url
+     */
+    public static getTypeUrl(typeUrlPrefix?: string): string;
+}
+
+/** Properties of a Bot2Web. */
+export interface IBot2Web {
+
+    /** Bot2Web id */
+    id?: (number|null);
+
+    /** Bot2Web response */
+    response?: (IResponse|null);
+
+    /** Bot2Web state */
+    state?: (IState|null);
+
+    /** Bot2Web physicalParams */
+    physicalParams?: (IPhysicalParams|null);
+
+    /** Bot2Web pitchControllerParams */
+    pitchControllerParams?: (IPitchControllerParams|null);
+
+    /** Bot2Web yawControllerParams */
+    yawControllerParams?: (IYawControllerParams|null);
+
+    /** Bot2Web log */
+    log?: (ILog|null);
+}
+
+/** Represents a Bot2Web. */
+export class Bot2Web implements IBot2Web {
+
+    /**
+     * Constructs a new Bot2Web.
+     * @param [properties] Properties to set
+     */
+    constructor(properties?: IBot2Web);
+
+    /** Bot2Web id. */
+    public id: number;
+
+    /** Bot2Web response. */
+    public response?: (IResponse|null);
+
+    /** Bot2Web state. */
+    public state?: (IState|null);
+
+    /** Bot2Web physicalParams. */
+    public physicalParams?: (IPhysicalParams|null);
+
+    /** Bot2Web pitchControllerParams. */
+    public pitchControllerParams?: (IPitchControllerParams|null);
+
+    /** Bot2Web yawControllerParams. */
+    public yawControllerParams?: (IYawControllerParams|null);
+
+    /** Bot2Web log. */
+    public log?: (ILog|null);
+
+    /** Bot2Web msg. */
+    public msg?: ("response"|"state"|"physicalParams"|"pitchControllerParams"|"yawControllerParams"|"log");
+
+    /**
+     * Creates a new Bot2Web instance using the specified properties.
+     * @param [properties] Properties to set
+     * @returns Bot2Web instance
+     */
+    public static create(properties?: IBot2Web): Bot2Web;
+
+    /**
+     * Encodes the specified Bot2Web message. Does not implicitly {@link Bot2Web.verify|verify} messages.
+     * @param message Bot2Web message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encode(message: IBot2Web, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Encodes the specified Bot2Web message, length delimited. Does not implicitly {@link Bot2Web.verify|verify} messages.
+     * @param message Bot2Web message or plain object to encode
+     * @param [writer] Writer to encode to
+     * @returns Writer
+     */
+    public static encodeDelimited(message: IBot2Web, writer?: $protobuf.Writer): $protobuf.Writer;
+
+    /**
+     * Decodes a Bot2Web message from the specified reader or buffer.
+     * @param reader Reader or buffer to decode from
+     * @param [length] Message length if known beforehand
+     * @returns Bot2Web
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): Bot2Web;
+
+    /**
+     * Decodes a Bot2Web message from the specified reader or buffer, length delimited.
+     * @param reader Reader or buffer to decode from
+     * @returns Bot2Web
+     * @throws {Error} If the payload is not a reader or valid buffer
+     * @throws {$protobuf.util.ProtocolError} If required fields are missing
+     */
+    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): Bot2Web;
+
+    /**
+     * Verifies a Bot2Web message.
+     * @param message Plain object to verify
+     * @returns `null` if valid, otherwise the reason why it is not
+     */
+    public static verify(message: { [k: string]: any }): (string|null);
+
+    /**
+     * Creates a Bot2Web message from a plain object. Also converts values to their respective internal types.
+     * @param object Plain object
+     * @returns Bot2Web
+     */
+    public static fromObject(object: { [k: string]: any }): Bot2Web;
+
+    /**
+     * Creates a plain object from a Bot2Web message. Also converts values to other types if specified.
+     * @param message Bot2Web
+     * @param [options] Conversion options
+     * @returns Plain object
+     */
+    public static toObject(message: Bot2Web, options?: $protobuf.IConversionOptions): { [k: string]: any };
+
+    /**
+     * Converts this Bot2Web to JSON.
+     * @returns JSON object
+     */
+    public toJSON(): { [k: string]: any };
+
+    /**
+     * Gets the default type url for Bot2Web
+     * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
+     * @returns The default type url
+     */
+    public static getTypeUrl(typeUrlPrefix?: string): string;
+}
+
 /** LogLevel enum. */
 export enum LogLevel {
     DEBUG = 0,
@@ -1002,6 +1141,16 @@ export enum LogLevel {
     WARN = 2,
     ERROR = 3,
     FATAL = 4
+}
+
+/** Properties of a Log. */
+export interface ILog {
+
+    /** Log level */
+    level?: (LogLevel|null);
+
+    /** Log message */
+    message?: (string|null);
 }
 
 /** Represents a Log. */
@@ -1091,120 +1240,6 @@ export class Log implements ILog {
 
     /**
      * Gets the default type url for Log
-     * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
-     * @returns The default type url
-     */
-    public static getTypeUrl(typeUrlPrefix?: string): string;
-}
-
-/** Command enum. */
-export enum Command {
-    START = 0,
-    STOP = 1,
-    SAVE_PHYSICAL_PARAMS = 2,
-    SAVE_PITCH_CONTROLLER_PARAMS = 3,
-    SAVE_YAW_CONTROLLER_PARAMS = 4
-}
-
-/** Represents a Web2Bot. */
-export class Web2Bot implements IWeb2Bot {
-
-    /**
-     * Constructs a new Web2Bot.
-     * @param [properties] Properties to set
-     */
-    constructor(properties?: IWeb2Bot);
-
-    /** Web2Bot id. */
-    public id: number;
-
-    /** Web2Bot command. */
-    public command?: (Command|null);
-
-    /** Web2Bot physicalParams. */
-    public physicalParams?: (IPhysicalParams|null);
-
-    /** Web2Bot pitchControllerParams. */
-    public pitchControllerParams?: (IPitchControllerParams|null);
-
-    /** Web2Bot rollControllerParams. */
-    public rollControllerParams?: (IYawControllerParams|null);
-
-    /** Web2Bot msg. */
-    public msg?: ("command"|"physicalParams"|"pitchControllerParams"|"rollControllerParams");
-
-    /**
-     * Creates a new Web2Bot instance using the specified properties.
-     * @param [properties] Properties to set
-     * @returns Web2Bot instance
-     */
-    public static create(properties?: IWeb2Bot): Web2Bot;
-
-    /**
-     * Encodes the specified Web2Bot message. Does not implicitly {@link Web2Bot.verify|verify} messages.
-     * @param message Web2Bot message or plain object to encode
-     * @param [writer] Writer to encode to
-     * @returns Writer
-     */
-    public static encode(message: IWeb2Bot, writer?: $protobuf.Writer): $protobuf.Writer;
-
-    /**
-     * Encodes the specified Web2Bot message, length delimited. Does not implicitly {@link Web2Bot.verify|verify} messages.
-     * @param message Web2Bot message or plain object to encode
-     * @param [writer] Writer to encode to
-     * @returns Writer
-     */
-    public static encodeDelimited(message: IWeb2Bot, writer?: $protobuf.Writer): $protobuf.Writer;
-
-    /**
-     * Decodes a Web2Bot message from the specified reader or buffer.
-     * @param reader Reader or buffer to decode from
-     * @param [length] Message length if known beforehand
-     * @returns Web2Bot
-     * @throws {Error} If the payload is not a reader or valid buffer
-     * @throws {$protobuf.util.ProtocolError} If required fields are missing
-     */
-    public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): Web2Bot;
-
-    /**
-     * Decodes a Web2Bot message from the specified reader or buffer, length delimited.
-     * @param reader Reader or buffer to decode from
-     * @returns Web2Bot
-     * @throws {Error} If the payload is not a reader or valid buffer
-     * @throws {$protobuf.util.ProtocolError} If required fields are missing
-     */
-    public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): Web2Bot;
-
-    /**
-     * Verifies a Web2Bot message.
-     * @param message Plain object to verify
-     * @returns `null` if valid, otherwise the reason why it is not
-     */
-    public static verify(message: { [k: string]: any }): (string|null);
-
-    /**
-     * Creates a Web2Bot message from a plain object. Also converts values to their respective internal types.
-     * @param object Plain object
-     * @returns Web2Bot
-     */
-    public static fromObject(object: { [k: string]: any }): Web2Bot;
-
-    /**
-     * Creates a plain object from a Web2Bot message. Also converts values to other types if specified.
-     * @param message Web2Bot
-     * @param [options] Conversion options
-     * @returns Plain object
-     */
-    public static toObject(message: Web2Bot, options?: $protobuf.IConversionOptions): { [k: string]: any };
-
-    /**
-     * Converts this Web2Bot to JSON.
-     * @returns JSON object
-     */
-    public toJSON(): { [k: string]: any };
-
-    /**
-     * Gets the default type url for Web2Bot
      * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
      * @returns The default type url
      */

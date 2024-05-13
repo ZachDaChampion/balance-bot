@@ -1,6 +1,7 @@
 import { get, writable, type Writable } from 'svelte/store';
 import { physical_params, pitch_controller, yaw_controller } from './robot_state';
 import { PhysicalParams, PitchControllerParams, YawControllerParams } from './proto/proto';
+import { receive_message } from './messaging';
 
 const FAKE_WEBSOCKET = true;
 
@@ -15,7 +16,7 @@ interface WebSocketState {
 
 // The active websocket connection to the balance bot, or null if there is no active connection.
 export const websocket_state: Writable<WebSocketState> = writable({
-    address: 'ws://balancebot:81',
+    address: 'ws://balancebot.local:81',
     connection: null,
     connected: false,
     show_error_dialog: false,
@@ -34,17 +35,17 @@ export function connect() {
         });
 
         physical_params.update((_) => {
-            return PhysicalParams.create({
+            return {
                 wheelBase: 0.1,
                 wheelRadius: 0.03,
                 motorMaxSpeed: 100,
                 gravity: 9.81,
                 torqueLength: 0.1
-            });
+            };
         });
 
         pitch_controller.update((_) => {
-            return PitchControllerParams.create({
+            return {
                 pid: {
                     kp: 1.0,
                     ki: 0.0,
@@ -54,11 +55,11 @@ export function connect() {
                     resetIntegral: true,
                     ffAddGravity: true
                 }
-            });
+            };
         });
 
         yaw_controller.update((_) => {
-            return YawControllerParams.create({
+            return {
                 pid: {
                     kp: 1.0,
                     ki: 0.0,
@@ -67,7 +68,7 @@ export function connect() {
                     integralSaturationLimit: 0.0,
                     resetIntegral: true
                 }
-            });
+            };
         });
 
         return;
@@ -84,6 +85,7 @@ export function connect() {
 
     // Create a new websocket connection.
     const ws = new WebSocket(get(websocket_state).address);
+    ws.binaryType = 'arraybuffer';
     ws.onopen = () => {
         websocket_state.update((state) => {
             return {
@@ -115,5 +117,8 @@ export function connect() {
                 message: null
             };
         });
+    };
+    ws.onmessage = (event) => {
+        receive_message(event.data);
     };
 }

@@ -26,6 +26,7 @@ message State {
     float left_motor_speed = 7; // Left motor speed in rpm
     float right_motor_speed = 8; // Right motor speed in rpm
     bool active = 9; // True if the bot is active
+    uint32 timestamp = 10; // Time that the state was recorded (milliseconds since robot bootup)
 }
 
 message Bot2Web {
