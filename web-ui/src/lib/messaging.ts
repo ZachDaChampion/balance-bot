@@ -166,6 +166,8 @@ export function receive_message(data: ArrayBuffer) {
     }
     if (!decoded) return;
 
+    console.log(`Received message with ID ${decoded.id}`);
+
     // Handle responses. This will accept any pending promises with a matching command ID and remove
     // any already-handled promises that are still in `response_promises`.
     if (decoded.response) {

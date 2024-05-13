@@ -13,6 +13,53 @@ let id = 0;
 const wss = new WebSocketServer({ port: 81 });
 
 wss.on("connection", (ws) => {
+  ws.send(
+    proto.Bot2Web.encode({
+      id,
+      physicalParams: {
+        wheelBase: 0.1,
+        wheelRadius: 0.03,
+        motorMaxSpeed: 100,
+        gravity: 9.81,
+        torqueLength: 0.1,
+      },
+    }).finish()
+  );
+  id += 1;
+  ws.send(
+    proto.Bot2Web.encode({
+      id,
+      pitchControllerParams: {
+        pid: {
+          kp: 1.0,
+          ki: 0.0,
+          kd: 0.0,
+          integralZeroThreshold: 0.0,
+          integralSaturationLimit: 0.0,
+          resetIntegral: true,
+          ffAddGravity: true,
+        },
+      },
+    }).finish()
+  );
+  id += 1;
+  ws.send(
+    proto.Bot2Web.encode({
+      id,
+      yawControllerParams: {
+        pid: {
+          kp: 1.0,
+          ki: 0.0,
+          kd: 0.0,
+          integralZeroThreshold: 0.0,
+          integralSaturationLimit: 0.0,
+          resetIntegral: true,
+        },
+      },
+    }).finish()
+  );
+  id += 1;
+
   ws.on("message", (message) => {
     // Parse the message using protobuf
     let msg = proto.Web2Bot.decode(message);
@@ -31,6 +78,7 @@ wss.on("connection", (ws) => {
     let buffer = proto.Bot2Web.encode(bot2web).finish();
     ws.send(buffer);
   });
+  id += 1;
 
   console.log("New connection established");
 });
@@ -70,13 +118,9 @@ rl.on("line", (input) => {
 
   let bot2web = {
     id,
-    response: null,
-    state: null,
-    PhysicalParams: null,
-    PitchControllerParams: null,
-    YawControllerParams: null,
     log: { level, message },
   };
+  id += 1;
 
   // Encode the log object using protobuf
   let buffer = proto.Bot2Web.encode(bot2web).finish();

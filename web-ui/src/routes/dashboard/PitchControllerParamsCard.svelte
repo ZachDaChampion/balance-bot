@@ -9,6 +9,10 @@
         Switch
     } from 'm3-svelte';
     import { pitch_controller } from '$lib/robot_state';
+    import { send_pitch_controller_params_message } from '$lib/messaging';
+    import { websocket_state } from '$lib/connection';
+    import { float2str } from '$lib/util';
+    import type { IPitchControllerParams } from '$lib/proto/proto';
 
     let controller_type: undefined | 'pid' = 'pid';
 
@@ -25,21 +29,45 @@
     });
 
     function reset() {
-        controller_type = $pitch_controller?.params;
+        if ($pitch_controller?.pid) controller_type = 'pid';
+        else controller_type = undefined;
 
-        pid_kp = $pitch_controller?.pid?.kp?.toFixed() || undefined;
-        pid_ki = $pitch_controller?.pid?.ki?.toFixed() || undefined;
-        pid_kd = $pitch_controller?.pid?.kd?.toFixed() || undefined;
-        pid_integral_zero_threshold =
-            $pitch_controller?.pid?.integralSaturationLimit?.toFixed() || undefined;
-        pid_integral_saturation =
-            $pitch_controller?.pid?.integralZeroThreshold?.toFixed() || undefined;
+        pid_kp = float2str($pitch_controller?.pid?.kp, 6);
+        pid_ki = float2str($pitch_controller?.pid?.ki, 6);
+        pid_kd = float2str($pitch_controller?.pid?.kd, 6);
+        pid_integral_zero_threshold = float2str($pitch_controller?.pid?.integralSaturationLimit, 6);
+        pid_integral_saturation = float2str($pitch_controller?.pid?.integralZeroThreshold, 6);
         pid_reset_integral = $pitch_controller?.pid?.resetIntegral || undefined;
         pid_ff_add_gravity = $pitch_controller?.pid?.ffAddGravity || undefined;
     }
 
     function send() {
-        // TODO: Send the physical parameters to the robot
+        const new_params: IPitchControllerParams = {
+            pid:
+                controller_type == 'pid'
+                    ? {
+                          kp: parseFloat(pid_kp ?? '0'),
+                          ki: parseFloat(pid_ki ?? '0'),
+                          kd: parseFloat(pid_kd ?? '0'),
+                          kf: 0, // TODO
+                          integralZeroThreshold: parseFloat(pid_integral_zero_threshold ?? '0'),
+                          integralSaturationLimit: parseFloat(pid_integral_saturation ?? '0'),
+                          resetIntegral: pid_reset_integral || false,
+                          ffAddGravity: pid_ff_add_gravity || false
+                      }
+                    : undefined
+        };
+
+        if (!$websocket_state.connected || !$websocket_state.connection) return;
+        send_pitch_controller_params_message(new_params)
+            .then((response) => {
+                console.log(
+                    `Received response for ${response.commandId} with code ${response.code}`
+                );
+            })
+            .catch((error) => {
+                console.error(error);
+            });
     }
 </script>
 

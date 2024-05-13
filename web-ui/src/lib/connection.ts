@@ -24,6 +24,11 @@ export const websocket_state: Writable<WebSocketState> = writable({
     message: null
 });
 
+function buf2hex(buffer: ArrayBuffer): string {
+    // buffer is an ArrayBuffer
+    return [...new Uint8Array(buffer)].map((x) => x.toString(16).padStart(2, '0')).join(' ');
+}
+
 export function connect() {
     if (FAKE_WEBSOCKET) {
         websocket_state.update((state) => {
@@ -119,6 +124,7 @@ export function connect() {
         });
     };
     ws.onmessage = (event) => {
+        console.log('Received message:', buf2hex(event.data));
         receive_message(event.data);
     };
 }

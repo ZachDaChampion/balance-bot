@@ -1,6 +1,10 @@
 <script lang="ts">
     import { Button, Card, TextFieldOutlined, CircularProgressIndeterminate } from 'm3-svelte';
     import { physical_params } from '$lib/robot_state';
+    import { websocket_state } from '$lib/connection';
+    import { send_physical_params_message } from '$lib/messaging';
+    import { float2str } from '$lib/util';
+    import type { IPhysicalParams } from '$lib/proto/proto';
 
     let wheelbase: undefined | string = undefined;
     let wheel_radius: undefined | string = undefined;
@@ -8,20 +12,37 @@
     let gravity: undefined | string = undefined;
     let torque_length: undefined | string = undefined;
 
+    function reset() {
+        wheelbase = float2str($physical_params?.wheelBase, 4);
+        wheel_radius = float2str($physical_params?.wheelRadius, 4);
+        motor_max_speed = float2str($physical_params?.motorMaxSpeed, 4);
+        gravity = float2str($physical_params?.gravity, 4);
+        torque_length = float2str($physical_params?.torqueLength, 4);
+    }
+
     physical_params.subscribe((_) => {
         reset();
     });
 
-    function reset() {
-        wheelbase = $physical_params?.wheelBase?.toFixed();
-        wheel_radius = $physical_params?.wheelRadius?.toFixed();
-        motor_max_speed = $physical_params?.motorMaxSpeed?.toFixed();
-        gravity = $physical_params?.gravity?.toFixed();
-        torque_length = $physical_params?.torqueLength?.toFixed();
-    }
-
     function send() {
-        // TODO: Send the physical parameters to the robot
+        const new_params: IPhysicalParams = {
+            wheelRadius: parseFloat(wheel_radius ?? '0'),
+            wheelBase: parseFloat(wheelbase ?? '0'),
+            motorMaxSpeed: parseFloat(motor_max_speed ?? '0'),
+            gravity: parseFloat(gravity ?? '0'),
+            torqueLength: parseFloat(torque_length ?? '0')
+        };
+
+        if (!$websocket_state.connected || !$websocket_state.connection) return;
+        send_physical_params_message(new_params)
+            .then((response) => {
+                console.log(
+                    `Received response for ${response.commandId} with code ${response.code}`
+                );
+            })
+            .catch((error) => {
+                console.error(error);
+            });
     }
 </script>
 
