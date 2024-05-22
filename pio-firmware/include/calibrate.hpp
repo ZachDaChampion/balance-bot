@@ -270,25 +270,9 @@ void motor_encoder_calibration(Motor<S>& motor_l, Motor<S>& motor_r, float step_
         if (weight_l == 0.f || weight_r == 0.f) {
             Serial.printf(
                 "ERROR: Could not find RPM %d.\n"
-                "L: %03.f with %d samples, R: %03.f with %d samples.\n"
-                "Press 'r' to restart the calibration, or 'n' to exit.\n",
+                "L: %03.f with %d samples, R: %03.f with %d samples.\n",
                 rpm, weighted_sum_l, count_l, weighted_sum_r, count_r);
-            while (1) {
-                if (Serial.available() > 0) {
-                    char c = Serial.read();
-                    if (c == 'r') {
-                        Serial.println("Restarting calibration in 5 seconds.");
-                        delay(5000);
-                        return motor_encoder_calibration(motor_l, motor_r, step_size,
-                                                         update_interval, settle_time,
-                                                         use_filtered_speed);
-                    }
-                    if (c == 'n') {
-                        Serial.println("Exiting.");
-                        return;
-                    }
-                }
-            }
+            return;
         }
         // Sanity check.
         float weighted_avg_l = weighted_sum_l / weight_l;
@@ -297,25 +281,9 @@ void motor_encoder_calibration(Motor<S>& motor_l, Motor<S>& motor_r, float step_
             weighted_avg_r > PWM_MAX) {
             Serial.printf(
                 "ERROR: Weighted average out of range for RPM %d.\n"
-                "L: %03.f with %d samples, R: %03.f with %d samples.\n"
-                "Press 'r' to restart the calibration, or 'n' to exit.\n",
+                "L: %03.f with %d samples, R: %03.f with %d samples.\n",
                 rpm, weighted_avg_l, count_l, weighted_avg_r, count_r);
-            while (1) {
-                if (Serial.available() > 0) {
-                    char c = Serial.read();
-                    if (c == 'r') {
-                        Serial.println("Restarting calibration in 5 seconds.");
-                        delay(5000);
-                        return motor_encoder_calibration(motor_l, motor_r, step_size,
-                                                         update_interval, settle_time,
-                                                         use_filtered_speed);
-                    }
-                    if (c == 'n') {
-                        Serial.println("Exiting.");
-                        return;
-                    }
-                }
-            }
+            return;
         }
 
         // Calculate the weighted average of the PWM values and store it in the lookup table.
@@ -333,8 +301,7 @@ void motor_encoder_calibration(Motor<S>& motor_l, Motor<S>& motor_r, float step_
 
     // Prompt the user to save the lookup table.
     Serial.println(
-        "Press 'y' to save the lookup table to persistent storage, 'n' to exit without saving, or "
-        "'r' to restart the calibration.");
+        "Press 'y' to save the lookup table to persistent storage, or 'n' to exit without saving.");
     while (1) {
         if (Serial.available() > 0) {
             char c = Serial.read();
@@ -342,12 +309,6 @@ void motor_encoder_calibration(Motor<S>& motor_l, Motor<S>& motor_r, float step_
             if (c == 'n') {
                 Serial.println("Exiting without saving.");
                 return;
-            }
-            if (c == 'r') {
-                Serial.println("Restarting calibration in 5 seconds.");
-                delay(5000);
-                return motor_encoder_calibration(motor_l, motor_r, step_size, update_interval,
-                                                 settle_time, use_filtered_speed);
             }
         }
     }

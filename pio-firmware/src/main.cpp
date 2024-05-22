@@ -15,8 +15,8 @@ static const size_t PIN_IMU_MOSI = 23;  // DI on chip
 static const size_t PIN_IMU_MISO = 19;  // SDA on chip
 static const size_t PIN_IMU_SCK = 18;   // SCL on chip
 
-static const size_t PIN_ENC_L_A = 26;
-static const size_t PIN_ENC_L_B = 25;
+static const size_t PIN_ENC_L_A = 25;
+static const size_t PIN_ENC_L_B = 26;
 static const size_t PIN_ENC_R_A = 33;
 static const size_t PIN_ENC_R_B = 27;
 
