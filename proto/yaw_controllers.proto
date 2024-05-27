@@ -1,0 +1,28 @@
+syntax = "proto3";
+import "controllers.proto";
+package controllers.yaw;
+
+message Params {
+    message PID {
+        controllers.ParamsPID base = 1;
+    }
+
+    oneof data {
+        PID pid = 1;
+    }
+}
+
+message State {
+    message PID {
+        controllers.StatePID base = 1;
+    }
+
+    oneof data {
+        PID pid = 1;
+    }
+}
+
+// All possible pitch controller types.
+enum Type {
+    PID = 0;
+}

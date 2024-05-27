@@ -1,0 +1,21 @@
+syntax = "proto3";
+package motor_calib;
+
+// Measurements taken during motor calibration
+message Measurements {
+    repeated uint32 pwm = 1 [packed=true]; // PWM sent to motors
+    repeated float speed_l = 2 [packed=true]; // Measured RPM of left motor
+    repeated float speed_r = 3 [packed=true]; // Measured RPM of right motor
+}
+
+// Lookup table calculated for each motor after calibration
+message LUT {
+    repeated sint32 rpm = 1 [packed=true]; // Desired motor RPM
+    repeated uint32 pwm_l = 2 [packed=true]; // PWM to send to left motor
+    repeated uint32 pwm_r = 3 [packed=true]; // PWM to send to right motor
+}
+
+message Result {
+    Measurements measurements = 1;
+    LUT lut = 2;
+}

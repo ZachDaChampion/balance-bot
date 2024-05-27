@@ -1,0 +1,48 @@
+syntax = "proto3";
+import "pitch_controllers.proto";
+import "yaw_controllers.proto";
+import "physical_characteristics.proto";
+import "motor_calibration.proto";
+package registers;
+
+// Named collections of data that can be read from and written to.
+enum Register {
+    ENABLE_BALANCING = 0;
+    PITCH_CONTROLLER_PARAMS = 1;
+    PITCH_CONTROLLER_ACTIVE = 2;
+    YAW_CONTROLLER_PARAMS = 3;
+    YAW_CONTROLLER_ACTIVE = 4;
+    PHYSICAL_CHARACTERSTICS = 5;
+    MOTOR_CALIBRATION_LUT = 6;
+}
+
+// Request the current value of a register. This is the active value in the robot's memory, not the
+// value stored in persistent storage.
+message ReadCurrent {
+    Register reg = 1;
+}
+
+// Request the value of a register that has been saved to persistent storage. This may be different
+// than the active value.
+message ReadSaved {
+    Register reg = 1;
+}
+
+// Set the value of a register. This will update the active value in the robot's memory, not the 
+// version saved in persistent storage.
+message WriteCurrent {
+    oneof data {
+        bool enable_balancing = 1;
+        controllers.pitch.Params pitch_controller_params = 2;
+        controllers.pitch.Type pitch_controller_active = 3;
+        controllers.yaw.Params yaw_controller_params = 4;
+        controllers.yaw.Type yaw_controller_active = 5;
+        physical.Characteristics physical_characteristics = 6;
+        motor_calib.LUT motor_calibration_lut = 7;
+    }
+}
+
+// Save the current value of a register to persistent storage.
+message SaveCurrent {
+    Register reg = 1;
+}

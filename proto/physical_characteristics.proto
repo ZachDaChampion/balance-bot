@@ -1,26 +1,11 @@
 syntax = "proto3";
-
-import "pid_params.proto";
+package physical;
 
 // Physical characteristics of the balance bot.
-message PhysicalParams {
+message Characteristics {
     float wheel_radius = 1; // Wheel radius in meters
     float wheel_base = 2; // Wheel base in meters
     float motor_max_speed = 3; // Motor maximum speed in rpm
     float gravity = 4; // Gravitational acceleration in meters per second squared
     float torque_length = 5; // Length of torque arm in meters
-}
-
-// Params for a specific pid controller.
-message PitchControllerParams {
-    oneof params {
-        PitchPidParams pid = 1;
-    }
-}
-
-// Params for a specific pid controller.
-message YawControllerParams {
-    oneof params {
-        YawPidParams pid = 1;
-    }
 }
