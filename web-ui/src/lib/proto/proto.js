@@ -14,6 +14,7 @@ export const Response = $root.Response = (() => {
      * @name IResponse
      * @interface IResponse
      * @property {number|null} [requestId] Response requestId
+     * @property {Response.IResult|null} [result] Response result
      * @property {boolean|null} [enableBalancing] Response enableBalancing
      * @property {controllers.pitch.IParams|null} [pitchControllerParams] Response pitchControllerParams
      * @property {controllers.pitch.Type|null} [pitchControllerActive] Response pitchControllerActive
@@ -22,7 +23,6 @@ export const Response = $root.Response = (() => {
      * @property {physical.ICharacteristics|null} [physicalCharacteristics] Response physicalCharacteristics
      * @property {motor_calib.ILUT|null} [motorCalibrationLut] Response motorCalibrationLut
      * @property {motor_calib.IResult|null} [motorCalibrationResult] Response motorCalibrationResult
-     * @property {Response.IError|null} [error] Response error
      */
 
     /**
@@ -47,6 +47,14 @@ export const Response = $root.Response = (() => {
      * @instance
      */
     Response.prototype.requestId = 0;
+
+    /**
+     * Response result.
+     * @member {Response.IResult|null|undefined} result
+     * @memberof Response
+     * @instance
+     */
+    Response.prototype.result = null;
 
     /**
      * Response enableBalancing.
@@ -112,25 +120,94 @@ export const Response = $root.Response = (() => {
      */
     Response.prototype.motorCalibrationResult = null;
 
-    /**
-     * Response error.
-     * @member {Response.IError|null|undefined} error
-     * @memberof Response
-     * @instance
-     */
-    Response.prototype.error = null;
-
     // OneOf field names bound to virtual getters and setters
     let $oneOfFields;
 
     /**
-     * Response payload.
-     * @member {"enableBalancing"|"pitchControllerParams"|"pitchControllerActive"|"yawControllerParams"|"yawControllerActive"|"physicalCharacteristics"|"motorCalibrationLut"|"motorCalibrationResult"|"error"|undefined} payload
+     * Response _enableBalancing.
+     * @member {"enableBalancing"|undefined} _enableBalancing
      * @memberof Response
      * @instance
      */
-    Object.defineProperty(Response.prototype, "payload", {
-        get: $util.oneOfGetter($oneOfFields = ["enableBalancing", "pitchControllerParams", "pitchControllerActive", "yawControllerParams", "yawControllerActive", "physicalCharacteristics", "motorCalibrationLut", "motorCalibrationResult", "error"]),
+    Object.defineProperty(Response.prototype, "_enableBalancing", {
+        get: $util.oneOfGetter($oneOfFields = ["enableBalancing"]),
+        set: $util.oneOfSetter($oneOfFields)
+    });
+
+    /**
+     * Response _pitchControllerParams.
+     * @member {"pitchControllerParams"|undefined} _pitchControllerParams
+     * @memberof Response
+     * @instance
+     */
+    Object.defineProperty(Response.prototype, "_pitchControllerParams", {
+        get: $util.oneOfGetter($oneOfFields = ["pitchControllerParams"]),
+        set: $util.oneOfSetter($oneOfFields)
+    });
+
+    /**
+     * Response _pitchControllerActive.
+     * @member {"pitchControllerActive"|undefined} _pitchControllerActive
+     * @memberof Response
+     * @instance
+     */
+    Object.defineProperty(Response.prototype, "_pitchControllerActive", {
+        get: $util.oneOfGetter($oneOfFields = ["pitchControllerActive"]),
+        set: $util.oneOfSetter($oneOfFields)
+    });
+
+    /**
+     * Response _yawControllerParams.
+     * @member {"yawControllerParams"|undefined} _yawControllerParams
+     * @memberof Response
+     * @instance
+     */
+    Object.defineProperty(Response.prototype, "_yawControllerParams", {
+        get: $util.oneOfGetter($oneOfFields = ["yawControllerParams"]),
+        set: $util.oneOfSetter($oneOfFields)
+    });
+
+    /**
+     * Response _yawControllerActive.
+     * @member {"yawControllerActive"|undefined} _yawControllerActive
+     * @memberof Response
+     * @instance
+     */
+    Object.defineProperty(Response.prototype, "_yawControllerActive", {
+        get: $util.oneOfGetter($oneOfFields = ["yawControllerActive"]),
+        set: $util.oneOfSetter($oneOfFields)
+    });
+
+    /**
+     * Response _physicalCharacteristics.
+     * @member {"physicalCharacteristics"|undefined} _physicalCharacteristics
+     * @memberof Response
+     * @instance
+     */
+    Object.defineProperty(Response.prototype, "_physicalCharacteristics", {
+        get: $util.oneOfGetter($oneOfFields = ["physicalCharacteristics"]),
+        set: $util.oneOfSetter($oneOfFields)
+    });
+
+    /**
+     * Response _motorCalibrationLut.
+     * @member {"motorCalibrationLut"|undefined} _motorCalibrationLut
+     * @memberof Response
+     * @instance
+     */
+    Object.defineProperty(Response.prototype, "_motorCalibrationLut", {
+        get: $util.oneOfGetter($oneOfFields = ["motorCalibrationLut"]),
+        set: $util.oneOfSetter($oneOfFields)
+    });
+
+    /**
+     * Response _motorCalibrationResult.
+     * @member {"motorCalibrationResult"|undefined} _motorCalibrationResult
+     * @memberof Response
+     * @instance
+     */
+    Object.defineProperty(Response.prototype, "_motorCalibrationResult", {
+        get: $util.oneOfGetter($oneOfFields = ["motorCalibrationResult"]),
         set: $util.oneOfSetter($oneOfFields)
     });
 
@@ -160,24 +237,24 @@ export const Response = $root.Response = (() => {
             writer = $Writer.create();
         if (message.requestId != null && Object.hasOwnProperty.call(message, "requestId"))
             writer.uint32(/* id 1, wireType 0 =*/8).uint32(message.requestId);
+        if (message.result != null && Object.hasOwnProperty.call(message, "result"))
+            $root.Response.Result.encode(message.result, writer.uint32(/* id 2, wireType 2 =*/18).fork()).ldelim();
         if (message.enableBalancing != null && Object.hasOwnProperty.call(message, "enableBalancing"))
-            writer.uint32(/* id 2, wireType 0 =*/16).bool(message.enableBalancing);
+            writer.uint32(/* id 3, wireType 0 =*/24).bool(message.enableBalancing);
         if (message.pitchControllerParams != null && Object.hasOwnProperty.call(message, "pitchControllerParams"))
-            $root.controllers.pitch.Params.encode(message.pitchControllerParams, writer.uint32(/* id 3, wireType 2 =*/26).fork()).ldelim();
+            $root.controllers.pitch.Params.encode(message.pitchControllerParams, writer.uint32(/* id 4, wireType 2 =*/34).fork()).ldelim();
         if (message.pitchControllerActive != null && Object.hasOwnProperty.call(message, "pitchControllerActive"))
-            writer.uint32(/* id 4, wireType 0 =*/32).int32(message.pitchControllerActive);
+            writer.uint32(/* id 5, wireType 0 =*/40).int32(message.pitchControllerActive);
         if (message.yawControllerParams != null && Object.hasOwnProperty.call(message, "yawControllerParams"))
-            $root.controllers.yaw.Params.encode(message.yawControllerParams, writer.uint32(/* id 5, wireType 2 =*/42).fork()).ldelim();
+            $root.controllers.yaw.Params.encode(message.yawControllerParams, writer.uint32(/* id 6, wireType 2 =*/50).fork()).ldelim();
         if (message.yawControllerActive != null && Object.hasOwnProperty.call(message, "yawControllerActive"))
-            writer.uint32(/* id 6, wireType 0 =*/48).int32(message.yawControllerActive);
+            writer.uint32(/* id 7, wireType 0 =*/56).int32(message.yawControllerActive);
         if (message.physicalCharacteristics != null && Object.hasOwnProperty.call(message, "physicalCharacteristics"))
-            $root.physical.Characteristics.encode(message.physicalCharacteristics, writer.uint32(/* id 7, wireType 2 =*/58).fork()).ldelim();
+            $root.physical.Characteristics.encode(message.physicalCharacteristics, writer.uint32(/* id 8, wireType 2 =*/66).fork()).ldelim();
         if (message.motorCalibrationLut != null && Object.hasOwnProperty.call(message, "motorCalibrationLut"))
-            $root.motor_calib.LUT.encode(message.motorCalibrationLut, writer.uint32(/* id 8, wireType 2 =*/66).fork()).ldelim();
+            $root.motor_calib.LUT.encode(message.motorCalibrationLut, writer.uint32(/* id 9, wireType 2 =*/74).fork()).ldelim();
         if (message.motorCalibrationResult != null && Object.hasOwnProperty.call(message, "motorCalibrationResult"))
-            $root.motor_calib.Result.encode(message.motorCalibrationResult, writer.uint32(/* id 9, wireType 2 =*/74).fork()).ldelim();
-        if (message.error != null && Object.hasOwnProperty.call(message, "error"))
-            $root.Response.Error.encode(message.error, writer.uint32(/* id 10, wireType 2 =*/82).fork()).ldelim();
+            $root.motor_calib.Result.encode(message.motorCalibrationResult, writer.uint32(/* id 10, wireType 2 =*/82).fork()).ldelim();
         return writer;
     };
 
@@ -217,39 +294,39 @@ export const Response = $root.Response = (() => {
                     break;
                 }
             case 2: {
-                    message.enableBalancing = reader.bool();
+                    message.result = $root.Response.Result.decode(reader, reader.uint32());
                     break;
                 }
             case 3: {
-                    message.pitchControllerParams = $root.controllers.pitch.Params.decode(reader, reader.uint32());
+                    message.enableBalancing = reader.bool();
                     break;
                 }
             case 4: {
-                    message.pitchControllerActive = reader.int32();
+                    message.pitchControllerParams = $root.controllers.pitch.Params.decode(reader, reader.uint32());
                     break;
                 }
             case 5: {
-                    message.yawControllerParams = $root.controllers.yaw.Params.decode(reader, reader.uint32());
+                    message.pitchControllerActive = reader.int32();
                     break;
                 }
             case 6: {
-                    message.yawControllerActive = reader.int32();
+                    message.yawControllerParams = $root.controllers.yaw.Params.decode(reader, reader.uint32());
                     break;
                 }
             case 7: {
-                    message.physicalCharacteristics = $root.physical.Characteristics.decode(reader, reader.uint32());
+                    message.yawControllerActive = reader.int32();
                     break;
                 }
             case 8: {
-                    message.motorCalibrationLut = $root.motor_calib.LUT.decode(reader, reader.uint32());
+                    message.physicalCharacteristics = $root.physical.Characteristics.decode(reader, reader.uint32());
                     break;
                 }
             case 9: {
-                    message.motorCalibrationResult = $root.motor_calib.Result.decode(reader, reader.uint32());
+                    message.motorCalibrationLut = $root.motor_calib.LUT.decode(reader, reader.uint32());
                     break;
                 }
             case 10: {
-                    message.error = $root.Response.Error.decode(reader, reader.uint32());
+                    message.motorCalibrationResult = $root.motor_calib.Result.decode(reader, reader.uint32());
                     break;
                 }
             default:
@@ -291,15 +368,18 @@ export const Response = $root.Response = (() => {
         if (message.requestId != null && message.hasOwnProperty("requestId"))
             if (!$util.isInteger(message.requestId))
                 return "requestId: integer expected";
+        if (message.result != null && message.hasOwnProperty("result")) {
+            let error = $root.Response.Result.verify(message.result);
+            if (error)
+                return "result." + error;
+        }
         if (message.enableBalancing != null && message.hasOwnProperty("enableBalancing")) {
-            properties.payload = 1;
+            properties._enableBalancing = 1;
             if (typeof message.enableBalancing !== "boolean")
                 return "enableBalancing: boolean expected";
         }
         if (message.pitchControllerParams != null && message.hasOwnProperty("pitchControllerParams")) {
-            if (properties.payload === 1)
-                return "payload: multiple values";
-            properties.payload = 1;
+            properties._pitchControllerParams = 1;
             {
                 let error = $root.controllers.pitch.Params.verify(message.pitchControllerParams);
                 if (error)
@@ -307,9 +387,7 @@ export const Response = $root.Response = (() => {
             }
         }
         if (message.pitchControllerActive != null && message.hasOwnProperty("pitchControllerActive")) {
-            if (properties.payload === 1)
-                return "payload: multiple values";
-            properties.payload = 1;
+            properties._pitchControllerActive = 1;
             switch (message.pitchControllerActive) {
             default:
                 return "pitchControllerActive: enum value expected";
@@ -318,9 +396,7 @@ export const Response = $root.Response = (() => {
             }
         }
         if (message.yawControllerParams != null && message.hasOwnProperty("yawControllerParams")) {
-            if (properties.payload === 1)
-                return "payload: multiple values";
-            properties.payload = 1;
+            properties._yawControllerParams = 1;
             {
                 let error = $root.controllers.yaw.Params.verify(message.yawControllerParams);
                 if (error)
@@ -328,9 +404,7 @@ export const Response = $root.Response = (() => {
             }
         }
         if (message.yawControllerActive != null && message.hasOwnProperty("yawControllerActive")) {
-            if (properties.payload === 1)
-                return "payload: multiple values";
-            properties.payload = 1;
+            properties._yawControllerActive = 1;
             switch (message.yawControllerActive) {
             default:
                 return "yawControllerActive: enum value expected";
@@ -339,9 +413,7 @@ export const Response = $root.Response = (() => {
             }
         }
         if (message.physicalCharacteristics != null && message.hasOwnProperty("physicalCharacteristics")) {
-            if (properties.payload === 1)
-                return "payload: multiple values";
-            properties.payload = 1;
+            properties._physicalCharacteristics = 1;
             {
                 let error = $root.physical.Characteristics.verify(message.physicalCharacteristics);
                 if (error)
@@ -349,9 +421,7 @@ export const Response = $root.Response = (() => {
             }
         }
         if (message.motorCalibrationLut != null && message.hasOwnProperty("motorCalibrationLut")) {
-            if (properties.payload === 1)
-                return "payload: multiple values";
-            properties.payload = 1;
+            properties._motorCalibrationLut = 1;
             {
                 let error = $root.motor_calib.LUT.verify(message.motorCalibrationLut);
                 if (error)
@@ -359,23 +429,11 @@ export const Response = $root.Response = (() => {
             }
         }
         if (message.motorCalibrationResult != null && message.hasOwnProperty("motorCalibrationResult")) {
-            if (properties.payload === 1)
-                return "payload: multiple values";
-            properties.payload = 1;
+            properties._motorCalibrationResult = 1;
             {
                 let error = $root.motor_calib.Result.verify(message.motorCalibrationResult);
                 if (error)
                     return "motorCalibrationResult." + error;
-            }
-        }
-        if (message.error != null && message.hasOwnProperty("error")) {
-            if (properties.payload === 1)
-                return "payload: multiple values";
-            properties.payload = 1;
-            {
-                let error = $root.Response.Error.verify(message.error);
-                if (error)
-                    return "error." + error;
             }
         }
         return null;
@@ -395,6 +453,11 @@ export const Response = $root.Response = (() => {
         let message = new $root.Response();
         if (object.requestId != null)
             message.requestId = object.requestId >>> 0;
+        if (object.result != null) {
+            if (typeof object.result !== "object")
+                throw TypeError(".Response.result: object expected");
+            message.result = $root.Response.Result.fromObject(object.result);
+        }
         if (object.enableBalancing != null)
             message.enableBalancing = Boolean(object.enableBalancing);
         if (object.pitchControllerParams != null) {
@@ -446,11 +509,6 @@ export const Response = $root.Response = (() => {
                 throw TypeError(".Response.motorCalibrationResult: object expected");
             message.motorCalibrationResult = $root.motor_calib.Result.fromObject(object.motorCalibrationResult);
         }
-        if (object.error != null) {
-            if (typeof object.error !== "object")
-                throw TypeError(".Response.error: object expected");
-            message.error = $root.Response.Error.fromObject(object.error);
-        }
         return message;
     };
 
@@ -467,54 +525,53 @@ export const Response = $root.Response = (() => {
         if (!options)
             options = {};
         let object = {};
-        if (options.defaults)
+        if (options.defaults) {
             object.requestId = 0;
+            object.result = null;
+        }
         if (message.requestId != null && message.hasOwnProperty("requestId"))
             object.requestId = message.requestId;
+        if (message.result != null && message.hasOwnProperty("result"))
+            object.result = $root.Response.Result.toObject(message.result, options);
         if (message.enableBalancing != null && message.hasOwnProperty("enableBalancing")) {
             object.enableBalancing = message.enableBalancing;
             if (options.oneofs)
-                object.payload = "enableBalancing";
+                object._enableBalancing = "enableBalancing";
         }
         if (message.pitchControllerParams != null && message.hasOwnProperty("pitchControllerParams")) {
             object.pitchControllerParams = $root.controllers.pitch.Params.toObject(message.pitchControllerParams, options);
             if (options.oneofs)
-                object.payload = "pitchControllerParams";
+                object._pitchControllerParams = "pitchControllerParams";
         }
         if (message.pitchControllerActive != null && message.hasOwnProperty("pitchControllerActive")) {
             object.pitchControllerActive = options.enums === String ? $root.controllers.pitch.Type[message.pitchControllerActive] === undefined ? message.pitchControllerActive : $root.controllers.pitch.Type[message.pitchControllerActive] : message.pitchControllerActive;
             if (options.oneofs)
-                object.payload = "pitchControllerActive";
+                object._pitchControllerActive = "pitchControllerActive";
         }
         if (message.yawControllerParams != null && message.hasOwnProperty("yawControllerParams")) {
             object.yawControllerParams = $root.controllers.yaw.Params.toObject(message.yawControllerParams, options);
             if (options.oneofs)
-                object.payload = "yawControllerParams";
+                object._yawControllerParams = "yawControllerParams";
         }
         if (message.yawControllerActive != null && message.hasOwnProperty("yawControllerActive")) {
             object.yawControllerActive = options.enums === String ? $root.controllers.yaw.Type[message.yawControllerActive] === undefined ? message.yawControllerActive : $root.controllers.yaw.Type[message.yawControllerActive] : message.yawControllerActive;
             if (options.oneofs)
-                object.payload = "yawControllerActive";
+                object._yawControllerActive = "yawControllerActive";
         }
         if (message.physicalCharacteristics != null && message.hasOwnProperty("physicalCharacteristics")) {
             object.physicalCharacteristics = $root.physical.Characteristics.toObject(message.physicalCharacteristics, options);
             if (options.oneofs)
-                object.payload = "physicalCharacteristics";
+                object._physicalCharacteristics = "physicalCharacteristics";
         }
         if (message.motorCalibrationLut != null && message.hasOwnProperty("motorCalibrationLut")) {
             object.motorCalibrationLut = $root.motor_calib.LUT.toObject(message.motorCalibrationLut, options);
             if (options.oneofs)
-                object.payload = "motorCalibrationLut";
+                object._motorCalibrationLut = "motorCalibrationLut";
         }
         if (message.motorCalibrationResult != null && message.hasOwnProperty("motorCalibrationResult")) {
             object.motorCalibrationResult = $root.motor_calib.Result.toObject(message.motorCalibrationResult, options);
             if (options.oneofs)
-                object.payload = "motorCalibrationResult";
-        }
-        if (message.error != null && message.hasOwnProperty("error")) {
-            object.error = $root.Response.Error.toObject(message.error, options);
-            if (options.oneofs)
-                object.payload = "error";
+                object._motorCalibrationResult = "motorCalibrationResult";
         }
         return object;
     };
@@ -545,25 +602,25 @@ export const Response = $root.Response = (() => {
         return typeUrlPrefix + "/Response";
     };
 
-    Response.Error = (function() {
+    Response.Result = (function() {
 
         /**
-         * Properties of an Error.
+         * Properties of a Result.
          * @memberof Response
-         * @interface IError
-         * @property {Response.Error.Code|null} [code] Error code
-         * @property {string|null} [msg] Error msg
+         * @interface IResult
+         * @property {Response.Result.Code|null} [code] Result code
+         * @property {string|null} [msg] Result msg
          */
 
         /**
-         * Constructs a new Error.
+         * Constructs a new Result.
          * @memberof Response
-         * @classdesc Represents an Error.
-         * @implements IError
+         * @classdesc Represents a Result.
+         * @implements IResult
          * @constructor
-         * @param {Response.IError=} [properties] Properties to set
+         * @param {Response.IResult=} [properties] Properties to set
          */
-        function Error(properties) {
+        function Result(properties) {
             if (properties)
                 for (let keys = Object.keys(properties), i = 0; i < keys.length; ++i)
                     if (properties[keys[i]] != null)
@@ -571,43 +628,57 @@ export const Response = $root.Response = (() => {
         }
 
         /**
-         * Error code.
-         * @member {Response.Error.Code} code
-         * @memberof Response.Error
+         * Result code.
+         * @member {Response.Result.Code} code
+         * @memberof Response.Result
          * @instance
          */
-        Error.prototype.code = 0;
+        Result.prototype.code = 0;
 
         /**
-         * Error msg.
-         * @member {string} msg
-         * @memberof Response.Error
+         * Result msg.
+         * @member {string|null|undefined} msg
+         * @memberof Response.Result
          * @instance
          */
-        Error.prototype.msg = "";
+        Result.prototype.msg = null;
+
+        // OneOf field names bound to virtual getters and setters
+        let $oneOfFields;
 
         /**
-         * Creates a new Error instance using the specified properties.
+         * Result _msg.
+         * @member {"msg"|undefined} _msg
+         * @memberof Response.Result
+         * @instance
+         */
+        Object.defineProperty(Result.prototype, "_msg", {
+            get: $util.oneOfGetter($oneOfFields = ["msg"]),
+            set: $util.oneOfSetter($oneOfFields)
+        });
+
+        /**
+         * Creates a new Result instance using the specified properties.
          * @function create
-         * @memberof Response.Error
+         * @memberof Response.Result
          * @static
-         * @param {Response.IError=} [properties] Properties to set
-         * @returns {Response.Error} Error instance
+         * @param {Response.IResult=} [properties] Properties to set
+         * @returns {Response.Result} Result instance
          */
-        Error.create = function create(properties) {
-            return new Error(properties);
+        Result.create = function create(properties) {
+            return new Result(properties);
         };
 
         /**
-         * Encodes the specified Error message. Does not implicitly {@link Response.Error.verify|verify} messages.
+         * Encodes the specified Result message. Does not implicitly {@link Response.Result.verify|verify} messages.
          * @function encode
-         * @memberof Response.Error
+         * @memberof Response.Result
          * @static
-         * @param {Response.IError} message Error message or plain object to encode
+         * @param {Response.IResult} message Result message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        Error.encode = function encode(message, writer) {
+        Result.encode = function encode(message, writer) {
             if (!writer)
                 writer = $Writer.create();
             if (message.code != null && Object.hasOwnProperty.call(message, "code"))
@@ -618,33 +689,33 @@ export const Response = $root.Response = (() => {
         };
 
         /**
-         * Encodes the specified Error message, length delimited. Does not implicitly {@link Response.Error.verify|verify} messages.
+         * Encodes the specified Result message, length delimited. Does not implicitly {@link Response.Result.verify|verify} messages.
          * @function encodeDelimited
-         * @memberof Response.Error
+         * @memberof Response.Result
          * @static
-         * @param {Response.IError} message Error message or plain object to encode
+         * @param {Response.IResult} message Result message or plain object to encode
          * @param {$protobuf.Writer} [writer] Writer to encode to
          * @returns {$protobuf.Writer} Writer
          */
-        Error.encodeDelimited = function encodeDelimited(message, writer) {
+        Result.encodeDelimited = function encodeDelimited(message, writer) {
             return this.encode(message, writer).ldelim();
         };
 
         /**
-         * Decodes an Error message from the specified reader or buffer.
+         * Decodes a Result message from the specified reader or buffer.
          * @function decode
-         * @memberof Response.Error
+         * @memberof Response.Result
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
          * @param {number} [length] Message length if known beforehand
-         * @returns {Response.Error} Error
+         * @returns {Response.Result} Result
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        Error.decode = function decode(reader, length) {
+        Result.decode = function decode(reader, length) {
             if (!(reader instanceof $Reader))
                 reader = $Reader.create(reader);
-            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.Response.Error();
+            let end = length === undefined ? reader.len : reader.pos + length, message = new $root.Response.Result();
             while (reader.pos < end) {
                 let tag = reader.uint32();
                 switch (tag >>> 3) {
@@ -665,57 +736,61 @@ export const Response = $root.Response = (() => {
         };
 
         /**
-         * Decodes an Error message from the specified reader or buffer, length delimited.
+         * Decodes a Result message from the specified reader or buffer, length delimited.
          * @function decodeDelimited
-         * @memberof Response.Error
+         * @memberof Response.Result
          * @static
          * @param {$protobuf.Reader|Uint8Array} reader Reader or buffer to decode from
-         * @returns {Response.Error} Error
+         * @returns {Response.Result} Result
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        Error.decodeDelimited = function decodeDelimited(reader) {
+        Result.decodeDelimited = function decodeDelimited(reader) {
             if (!(reader instanceof $Reader))
                 reader = new $Reader(reader);
             return this.decode(reader, reader.uint32());
         };
 
         /**
-         * Verifies an Error message.
+         * Verifies a Result message.
          * @function verify
-         * @memberof Response.Error
+         * @memberof Response.Result
          * @static
          * @param {Object.<string,*>} message Plain object to verify
          * @returns {string|null} `null` if valid, otherwise the reason why it is not
          */
-        Error.verify = function verify(message) {
+        Result.verify = function verify(message) {
             if (typeof message !== "object" || message === null)
                 return "object expected";
+            let properties = {};
             if (message.code != null && message.hasOwnProperty("code"))
                 switch (message.code) {
                 default:
                     return "code: enum value expected";
                 case 0:
+                case 1:
                     break;
                 }
-            if (message.msg != null && message.hasOwnProperty("msg"))
+            if (message.msg != null && message.hasOwnProperty("msg")) {
+                properties._msg = 1;
                 if (!$util.isString(message.msg))
                     return "msg: string expected";
+            }
             return null;
         };
 
         /**
-         * Creates an Error message from a plain object. Also converts values to their respective internal types.
+         * Creates a Result message from a plain object. Also converts values to their respective internal types.
          * @function fromObject
-         * @memberof Response.Error
+         * @memberof Response.Result
          * @static
          * @param {Object.<string,*>} object Plain object
-         * @returns {Response.Error} Error
+         * @returns {Response.Result} Result
          */
-        Error.fromObject = function fromObject(object) {
-            if (object instanceof $root.Response.Error)
+        Result.fromObject = function fromObject(object) {
+            if (object instanceof $root.Response.Result)
                 return object;
-            let message = new $root.Response.Error();
+            let message = new $root.Response.Result();
             switch (object.code) {
             default:
                 if (typeof object.code === "number") {
@@ -723,9 +798,13 @@ export const Response = $root.Response = (() => {
                     break;
                 }
                 break;
-            case "UNKNOWN":
+            case "OK":
             case 0:
                 message.code = 0;
+                break;
+            case "ERR_UNKNOWN":
+            case 1:
+                message.code = 1;
                 break;
             }
             if (object.msg != null)
@@ -734,68 +813,71 @@ export const Response = $root.Response = (() => {
         };
 
         /**
-         * Creates a plain object from an Error message. Also converts values to other types if specified.
+         * Creates a plain object from a Result message. Also converts values to other types if specified.
          * @function toObject
-         * @memberof Response.Error
+         * @memberof Response.Result
          * @static
-         * @param {Response.Error} message Error
+         * @param {Response.Result} message Result
          * @param {$protobuf.IConversionOptions} [options] Conversion options
          * @returns {Object.<string,*>} Plain object
          */
-        Error.toObject = function toObject(message, options) {
+        Result.toObject = function toObject(message, options) {
             if (!options)
                 options = {};
             let object = {};
-            if (options.defaults) {
-                object.code = options.enums === String ? "UNKNOWN" : 0;
-                object.msg = "";
-            }
+            if (options.defaults)
+                object.code = options.enums === String ? "OK" : 0;
             if (message.code != null && message.hasOwnProperty("code"))
-                object.code = options.enums === String ? $root.Response.Error.Code[message.code] === undefined ? message.code : $root.Response.Error.Code[message.code] : message.code;
-            if (message.msg != null && message.hasOwnProperty("msg"))
+                object.code = options.enums === String ? $root.Response.Result.Code[message.code] === undefined ? message.code : $root.Response.Result.Code[message.code] : message.code;
+            if (message.msg != null && message.hasOwnProperty("msg")) {
                 object.msg = message.msg;
+                if (options.oneofs)
+                    object._msg = "msg";
+            }
             return object;
         };
 
         /**
-         * Converts this Error to JSON.
+         * Converts this Result to JSON.
          * @function toJSON
-         * @memberof Response.Error
+         * @memberof Response.Result
          * @instance
          * @returns {Object.<string,*>} JSON object
          */
-        Error.prototype.toJSON = function toJSON() {
+        Result.prototype.toJSON = function toJSON() {
             return this.constructor.toObject(this, $protobuf.util.toJSONOptions);
         };
 
         /**
-         * Gets the default type url for Error
+         * Gets the default type url for Result
          * @function getTypeUrl
-         * @memberof Response.Error
+         * @memberof Response.Result
          * @static
          * @param {string} [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
          * @returns {string} The default type url
          */
-        Error.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
+        Result.getTypeUrl = function getTypeUrl(typeUrlPrefix) {
             if (typeUrlPrefix === undefined) {
                 typeUrlPrefix = "type.googleapis.com";
             }
-            return typeUrlPrefix + "/Response.Error";
+            return typeUrlPrefix + "/Response.Result";
         };
 
         /**
          * Code enum.
-         * @name Response.Error.Code
+         * @name Response.Result.Code
          * @enum {number}
-         * @property {number} UNKNOWN=0 UNKNOWN value
+         * @property {number} OK=0 OK value
+         * @property {number} ERR_UNKNOWN=1 ERR_UNKNOWN value
          */
-        Error.Code = (function() {
+        Result.Code = (function() {
             const valuesById = {}, values = Object.create(valuesById);
-            values[valuesById[0] = "UNKNOWN"] = 0;
+            values[valuesById[0] = "OK"] = 0;
+            values[valuesById[1] = "ERR_UNKNOWN"] = 1;
             return values;
         })();
 
-        return Error;
+        return Result;
     })();
 
     return Response;
@@ -1539,6 +1621,7 @@ export const Message = $root.Message = (() => {
      * @property {google.protobuf.IEmpty|null} [calibrateMotors] Message calibrateMotors
      * @property {IRobotState|null} [robotState] Message robotState
      * @property {ILog|null} [log] Message log
+     * @property {google.protobuf.IEmpty|null} [readAllRegs] Message readAllRegs
      */
 
     /**
@@ -1628,17 +1711,25 @@ export const Message = $root.Message = (() => {
      */
     Message.prototype.log = null;
 
+    /**
+     * Message readAllRegs.
+     * @member {google.protobuf.IEmpty|null|undefined} readAllRegs
+     * @memberof Message
+     * @instance
+     */
+    Message.prototype.readAllRegs = null;
+
     // OneOf field names bound to virtual getters and setters
     let $oneOfFields;
 
     /**
      * Message payload.
-     * @member {"response"|"readCurrentReg"|"readSavedReg"|"writeCurrentReg"|"saveCurrentReg"|"calibrateMotors"|"robotState"|"log"|undefined} payload
+     * @member {"response"|"readCurrentReg"|"readSavedReg"|"writeCurrentReg"|"saveCurrentReg"|"calibrateMotors"|"robotState"|"log"|"readAllRegs"|undefined} payload
      * @memberof Message
      * @instance
      */
     Object.defineProperty(Message.prototype, "payload", {
-        get: $util.oneOfGetter($oneOfFields = ["response", "readCurrentReg", "readSavedReg", "writeCurrentReg", "saveCurrentReg", "calibrateMotors", "robotState", "log"]),
+        get: $util.oneOfGetter($oneOfFields = ["response", "readCurrentReg", "readSavedReg", "writeCurrentReg", "saveCurrentReg", "calibrateMotors", "robotState", "log", "readAllRegs"]),
         set: $util.oneOfSetter($oneOfFields)
     });
 
@@ -1684,6 +1775,8 @@ export const Message = $root.Message = (() => {
             $root.RobotState.encode(message.robotState, writer.uint32(/* id 8, wireType 2 =*/66).fork()).ldelim();
         if (message.log != null && Object.hasOwnProperty.call(message, "log"))
             $root.Log.encode(message.log, writer.uint32(/* id 9, wireType 2 =*/74).fork()).ldelim();
+        if (message.readAllRegs != null && Object.hasOwnProperty.call(message, "readAllRegs"))
+            $root.google.protobuf.Empty.encode(message.readAllRegs, writer.uint32(/* id 10, wireType 2 =*/82).fork()).ldelim();
         return writer;
     };
 
@@ -1752,6 +1845,10 @@ export const Message = $root.Message = (() => {
                 }
             case 9: {
                     message.log = $root.Log.decode(reader, reader.uint32());
+                    break;
+                }
+            case 10: {
+                    message.readAllRegs = $root.google.protobuf.Empty.decode(reader, reader.uint32());
                     break;
                 }
             default:
@@ -1871,6 +1968,16 @@ export const Message = $root.Message = (() => {
                     return "log." + error;
             }
         }
+        if (message.readAllRegs != null && message.hasOwnProperty("readAllRegs")) {
+            if (properties.payload === 1)
+                return "payload: multiple values";
+            properties.payload = 1;
+            {
+                let error = $root.google.protobuf.Empty.verify(message.readAllRegs);
+                if (error)
+                    return "readAllRegs." + error;
+            }
+        }
         return null;
     };
 
@@ -1927,6 +2034,11 @@ export const Message = $root.Message = (() => {
             if (typeof object.log !== "object")
                 throw TypeError(".Message.log: object expected");
             message.log = $root.Log.fromObject(object.log);
+        }
+        if (object.readAllRegs != null) {
+            if (typeof object.readAllRegs !== "object")
+                throw TypeError(".Message.readAllRegs: object expected");
+            message.readAllRegs = $root.google.protobuf.Empty.fromObject(object.readAllRegs);
         }
         return message;
     };
@@ -1987,6 +2099,11 @@ export const Message = $root.Message = (() => {
             object.log = $root.Log.toObject(message.log, options);
             if (options.oneofs)
                 object.payload = "log";
+        }
+        if (message.readAllRegs != null && message.hasOwnProperty("readAllRegs")) {
+            object.readAllRegs = $root.google.protobuf.Empty.toObject(message.readAllRegs, options);
+            if (options.oneofs)
+                object.payload = "readAllRegs";
         }
         return object;
     };
@@ -3298,12 +3415,12 @@ export const controllers = $root.controllers = (() => {
             let $oneOfFields;
 
             /**
-             * Params data.
-             * @member {"pid"|undefined} data
+             * Params _pid.
+             * @member {"pid"|undefined} _pid
              * @memberof controllers.pitch.Params
              * @instance
              */
-            Object.defineProperty(Params.prototype, "data", {
+            Object.defineProperty(Params.prototype, "_pid", {
                 get: $util.oneOfGetter($oneOfFields = ["pid"]),
                 set: $util.oneOfSetter($oneOfFields)
             });
@@ -3409,7 +3526,7 @@ export const controllers = $root.controllers = (() => {
                     return "object expected";
                 let properties = {};
                 if (message.pid != null && message.hasOwnProperty("pid")) {
-                    properties.data = 1;
+                    properties._pid = 1;
                     {
                         let error = $root.controllers.pitch.Params.PID.verify(message.pid);
                         if (error)
@@ -3455,7 +3572,7 @@ export const controllers = $root.controllers = (() => {
                 if (message.pid != null && message.hasOwnProperty("pid")) {
                     object.pid = $root.controllers.pitch.Params.PID.toObject(message.pid, options);
                     if (options.oneofs)
-                        object.data = "pid";
+                        object._pid = "pid";
                 }
                 return object;
             };
@@ -3757,12 +3874,12 @@ export const controllers = $root.controllers = (() => {
             let $oneOfFields;
 
             /**
-             * State data.
-             * @member {"pid"|undefined} data
+             * State active.
+             * @member {"pid"|undefined} active
              * @memberof controllers.pitch.State
              * @instance
              */
-            Object.defineProperty(State.prototype, "data", {
+            Object.defineProperty(State.prototype, "active", {
                 get: $util.oneOfGetter($oneOfFields = ["pid"]),
                 set: $util.oneOfSetter($oneOfFields)
             });
@@ -3868,7 +3985,7 @@ export const controllers = $root.controllers = (() => {
                     return "object expected";
                 let properties = {};
                 if (message.pid != null && message.hasOwnProperty("pid")) {
-                    properties.data = 1;
+                    properties.active = 1;
                     {
                         let error = $root.controllers.pitch.State.PID.verify(message.pid);
                         if (error)
@@ -3914,7 +4031,7 @@ export const controllers = $root.controllers = (() => {
                 if (message.pid != null && message.hasOwnProperty("pid")) {
                     object.pid = $root.controllers.pitch.State.PID.toObject(message.pid, options);
                     if (options.oneofs)
-                        object.data = "pid";
+                        object.active = "pid";
                 }
                 return object;
             };
@@ -4854,12 +4971,12 @@ export const controllers = $root.controllers = (() => {
             let $oneOfFields;
 
             /**
-             * Params data.
-             * @member {"pid"|undefined} data
+             * Params _pid.
+             * @member {"pid"|undefined} _pid
              * @memberof controllers.yaw.Params
              * @instance
              */
-            Object.defineProperty(Params.prototype, "data", {
+            Object.defineProperty(Params.prototype, "_pid", {
                 get: $util.oneOfGetter($oneOfFields = ["pid"]),
                 set: $util.oneOfSetter($oneOfFields)
             });
@@ -4965,7 +5082,7 @@ export const controllers = $root.controllers = (() => {
                     return "object expected";
                 let properties = {};
                 if (message.pid != null && message.hasOwnProperty("pid")) {
-                    properties.data = 1;
+                    properties._pid = 1;
                     {
                         let error = $root.controllers.yaw.Params.PID.verify(message.pid);
                         if (error)
@@ -5011,7 +5128,7 @@ export const controllers = $root.controllers = (() => {
                 if (message.pid != null && message.hasOwnProperty("pid")) {
                     object.pid = $root.controllers.yaw.Params.PID.toObject(message.pid, options);
                     if (options.oneofs)
-                        object.data = "pid";
+                        object._pid = "pid";
                 }
                 return object;
             };
@@ -5289,12 +5406,12 @@ export const controllers = $root.controllers = (() => {
             let $oneOfFields;
 
             /**
-             * State data.
-             * @member {"pid"|undefined} data
+             * State active.
+             * @member {"pid"|undefined} active
              * @memberof controllers.yaw.State
              * @instance
              */
-            Object.defineProperty(State.prototype, "data", {
+            Object.defineProperty(State.prototype, "active", {
                 get: $util.oneOfGetter($oneOfFields = ["pid"]),
                 set: $util.oneOfSetter($oneOfFields)
             });
@@ -5400,7 +5517,7 @@ export const controllers = $root.controllers = (() => {
                     return "object expected";
                 let properties = {};
                 if (message.pid != null && message.hasOwnProperty("pid")) {
-                    properties.data = 1;
+                    properties.active = 1;
                     {
                         let error = $root.controllers.yaw.State.PID.verify(message.pid);
                         if (error)
@@ -5446,7 +5563,7 @@ export const controllers = $root.controllers = (() => {
                 if (message.pid != null && message.hasOwnProperty("pid")) {
                     object.pid = $root.controllers.yaw.State.PID.toObject(message.pid, options);
                     if (options.oneofs)
-                        object.data = "pid";
+                        object.active = "pid";
                 }
                 return object;
             };

@@ -8,26 +8,26 @@ import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 
 message Response {
-    message Error {
+    message Result {
         enum Code {
-            UNKNOWN = 0;
+            OK = 0;
+            ERR_UNKNOWN = 1;
         }
         Code code = 1;
-        string msg = 2;
+        optional string msg = 2;
     }
 
     uint32 request_id = 1; // ID of the message being responded to
-    oneof payload {
-        bool enable_balancing = 2;
-        controllers.pitch.Params pitch_controller_params = 3;
-        controllers.pitch.Type pitch_controller_active = 4;
-        controllers.yaw.Params yaw_controller_params = 5;
-        controllers.yaw.Type yaw_controller_active = 6;
-        physical.Characteristics physical_characteristics = 7;
-        motor_calib.LUT motor_calibration_lut = 8;
-        motor_calib.Result motor_calibration_result = 9;
-        Error error = 10;
-    }
+    Result result = 2;
+
+    optional bool enable_balancing = 3;
+    optional controllers.pitch.Params pitch_controller_params = 4;
+    optional controllers.pitch.Type pitch_controller_active = 5;
+    optional controllers.yaw.Params yaw_controller_params = 6;
+    optional controllers.yaw.Type yaw_controller_active = 7;
+    optional physical.Characteristics physical_characteristics = 8;
+    optional motor_calib.LUT motor_calibration_lut = 9;
+    optional motor_calib.Result motor_calibration_result = 10;
 }
 
 message RobotState {
@@ -68,5 +68,6 @@ message Message {
         google.protobuf.Empty calibrate_motors = 7;
         RobotState robot_state = 8;
         Log log = 9;
+        google.protobuf.Empty read_all_regs = 10;
     }
 }

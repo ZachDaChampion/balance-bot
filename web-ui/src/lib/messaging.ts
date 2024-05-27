@@ -1,31 +1,21 @@
 import { get, writable, type Writable } from 'svelte/store';
-import {
-    Bot2Web,
-    Command,
-    LogLevel,
-    Web2Bot,
-    type IPhysicalParams,
-    type IPitchControllerParams,
-    type IResponse,
-    type IWeb2Bot,
-    type IYawControllerParams
-} from './proto/proto';
+import { Log, Message, Response, registers, type IMessage, type IResponse } from './proto/proto';
 import { websocket_state } from './connection';
 import protobuf from 'protobufjs';
-import { log, physical_params, pitch_controller, robot_state, yaw_controller } from './robot_state';
+import { add_to_log, log, robot_state } from './robot_state';
 
 /**
  * A wrapper around a Promise that resolves to a response.
  */
 class ResponsePromise {
-    command_id: number;
+    request_id: number;
     handled: boolean;
     promise: Promise<IResponse>;
     accept: (value: IResponse | PromiseLike<IResponse>) => void = () => {};
     reject: (reason?: any) => void = () => {};
 
     constructor(command_id: number, timeout: number = 100) {
-        this.command_id = command_id;
+        this.request_id = command_id;
         this.handled = false;
         this.promise = new Promise((accept, reject) => {
             this.accept = accept;
@@ -69,18 +59,18 @@ export const response_promises: Writable<Array<ResponsePromise>> = writable([]);
  * @param max_timeout The maximum number of milliseconds to wait for a response.
  * @returns A promise that resolves to a response.
  */
-async function send_message(msg: IWeb2Bot, max_timeout = 100): Promise<IResponse> {
+export async function send_message(msg: IMessage, max_timeout = 100): Promise<IResponse> {
     // If the websocket is not connected, error.
     const ws = get(websocket_state);
     if (!ws.connected || !ws.connection) throw new Error('Not connected to the robot.');
 
     // Construct response promise and add it to the list of pending promises.
-    if (!msg.id && msg.id !== 0) throw new Error('Message ID is required.');
+    if (!msg.id && msg.id !== 0) msg.id = get_next_id();
     const response_promise = new ResponsePromise(msg.id, max_timeout);
     response_promises.update((promises) => [...promises, response_promise]);
 
     // Send the message over the websocket.
-    const buffer = Web2Bot.encode(msg).finish();
+    const buffer = Message.encode(msg).finish();
     ws.connection.send(buffer);
 
     // Wait for the response.
@@ -88,65 +78,39 @@ async function send_message(msg: IWeb2Bot, max_timeout = 100): Promise<IResponse
 }
 
 /**
- * Sends a command message to the robot and returns a promise that resolves to a response.
- * @param command The command to send.
+ * Write a register to the robot. This will overwrite the current active register value, but will
+ * not persist across reboots. Call `save_register` after this to persist the value.
+ *
+ * @param value The register value to write.
  * @param max_timeout The maximum number of milliseconds to wait for a response.
- * @returns A promise that resolves to a response.
+ * @returns A promise that resolves to the response.
  */
-export async function send_command_message(command: Command, max_timeout = 100) {
-    const msg: IWeb2Bot = {
+export async function write_register(value: registers.IWriteCurrent, max_timeout = 100) {
+    const msg: IMessage = {
         id: get_next_id(),
-        command: command
+        writeCurrentReg: value
     };
-    return send_message(msg, max_timeout);
+    const response = await send_message(msg, max_timeout);
+    if (!response.result) throw new Error('Failed to write register; no result.');
+    if (response.result.code !== Response.Result.Code.OK)
+        throw new Error('Failed to write register: ' + response.result.msg);
+    return response;
 }
 
-/**
- * Sends a physical parameters message to the robot and returns a promise that resolves to a response.
- * @param params The physical parameters to send.
- * @param max_timeout The maximum number of milliseconds to wait for a response.
- * @returns A promise that resolves to a response.
- */
-export async function send_physical_params_message(params: IPhysicalParams, max_timeout = 100) {
-    const msg: IWeb2Bot = {
-        id: get_next_id(),
-        physicalParams: params
-    };
-    return send_message(msg, max_timeout);
-}
-
-/**
- * Sends a pitch controller parameters message to the robot and returns a promise that resolves to a response.
- * @param params The pitch controller parameters to send.
- * @param max_timeout The maximum number of milliseconds to wait for a response.
- * @returns A promise that resolves to a response.
- */
-export async function send_pitch_controller_params_message(
-    params: IPitchControllerParams,
+export async function read_register(
+    register: registers.Register,
+    read_persistant: boolean = false,
     max_timeout = 100
 ) {
-    const msg: IWeb2Bot = {
-        id: get_next_id(),
-        pitchControllerParams: params
+    const msg: IMessage = {
+        id: get_next_id()
     };
-    return send_message(msg, max_timeout);
-}
+    if (read_persistant) msg.readSavedReg = { reg: register };
+    else msg.readCurrentReg = { reg: register };
 
-/**
- * Sends a yaw controller parameters message to the robot and returns a promise that resolves to a response.
- * @param params The yaw controller parameters to send.
- * @param max_timeout The maximum number of milliseconds to wait for a response.
- * @returns A promise that resolves to a response.
- */
-export async function send_yaw_controller_params_message(
-    params: IYawControllerParams,
-    max_timeout = 100
-) {
-    const msg: IWeb2Bot = {
-        id: get_next_id(),
-        rollControllerParams: params
-    };
-    return send_message(msg, max_timeout);
+    const response = await send_message(msg, max_timeout);
+    if (response.result?.code) throw new Error('Failed to read register: ' + response.result.msg);
+    return response;
 }
 
 /**
@@ -158,7 +122,7 @@ export function receive_message(data: ArrayBuffer) {
     const typed_buffer = new Uint8Array(data);
     let decoded = null;
     try {
-        decoded = Bot2Web.decode(typed_buffer);
+        decoded = Message.decode(typed_buffer);
     } catch (e) {
         if (e instanceof protobuf.util.ProtocolError) console.error(e.message);
         else console.error("Couldn't decode message: wire format is invalid");
@@ -174,7 +138,7 @@ export function receive_message(data: ArrayBuffer) {
         response_promises.update((promises) => {
             return promises.filter((p) => {
                 if (p.handled) return false;
-                if (p.command_id == decoded.response?.commandId) {
+                if (p.request_id == decoded.response?.requestId) {
                     p.accept(decoded.response);
                     return false;
                 }
@@ -184,34 +148,9 @@ export function receive_message(data: ArrayBuffer) {
     }
 
     // Handle log messages.
-    if (decoded.log) {
-        const new_log = decoded.log;
-        log.update((value) => [...value, new_log]);
-        switch (new_log.level) {
-            case LogLevel.DEBUG:
-                console.debug(`LOG (DEBUG): ${new_log.message}`);
-                break;
-            case LogLevel.INFO:
-                console.info(`LOG (INFO): ${new_log.message}`);
-                break;
-            case LogLevel.WARN:
-                console.warn(`LOG (WARN): ${new_log.message}`);
-                break;
-            case LogLevel.ERROR:
-                console.error(`LOG (ERROR): ${new_log.message}`);
-                break;
-            case LogLevel.FATAL:
-                console.error(`LOG (FATAL): ${new_log.message}`);
-                break;
-            default:
-                console.log(`LOG (UNKNOWN LEVEL): ${new_log.message}`);
-                break;
-        }
-    }
+    if (decoded.log) add_to_log(decoded.log);
 
-    // Handle other messages.
-    if (decoded.state) robot_state.set(decoded.state);
-    if (decoded.physicalParams) physical_params.set(decoded.physicalParams);
-    if (decoded.pitchControllerParams) pitch_controller.set(decoded.pitchControllerParams);
-    if (decoded.yawControllerParams) yaw_controller.set(decoded.yawControllerParams);
+    // Handle robot state update.
+    // TODO: Improve this to support plotting.
+    if (decoded.robotState) robot_state.set(decoded.robotState);
 }

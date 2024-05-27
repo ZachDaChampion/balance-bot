@@ -1,6 +1,16 @@
 import { get, writable, type Writable } from 'svelte/store';
-import { physical_params, pitch_controller, yaw_controller } from './robot_state';
-import { receive_message } from './messaging';
+import {
+    enable_balancing,
+    log,
+    motor_calibration,
+    physical_characteristics,
+    pitch_controller_active,
+    pitch_controller_params,
+    yaw_controller_active,
+    yaw_controller_params
+} from './robot_state';
+import { receive_message, send_message } from './messaging';
+import { Log, controllers } from './proto/proto';
 
 const FAKE_WEBSOCKET = false;
 
@@ -38,7 +48,7 @@ export function connect() {
             };
         });
 
-        physical_params.update((_) => {
+        physical_characteristics.update((_) => {
             return {
                 wheelBase: 0.1,
                 wheelRadius: 0.03,
@@ -48,32 +58,38 @@ export function connect() {
             };
         });
 
-        pitch_controller.update((_) => {
+        pitch_controller_params.update((_) => {
             return {
                 pid: {
-                    kp: 1.0,
-                    ki: 0.0,
-                    kd: 0.0,
-                    integralZeroThreshold: 0.0,
-                    integralSaturationLimit: 0.0,
-                    resetIntegral: true,
+                    base: {
+                        kp: 1.0,
+                        ki: 0.0,
+                        kd: 0.0,
+                        integralZeroThreshold: 0.0,
+                        integralSaturationLimit: 0.0,
+                        resetIntegral: true
+                    },
                     ffAddGravity: true
                 }
             };
         });
+        pitch_controller_active.update((_) => controllers.pitch.Type.PID);
 
-        yaw_controller.update((_) => {
+        yaw_controller_params.update((_) => {
             return {
                 pid: {
-                    kp: 1.0,
-                    ki: 0.0,
-                    kd: 0.0,
-                    integralZeroThreshold: 0.0,
-                    integralSaturationLimit: 0.0,
-                    resetIntegral: true
+                    base: {
+                        kp: 1.0,
+                        ki: 0.0,
+                        kd: 0.0,
+                        integralZeroThreshold: 0.0,
+                        integralSaturationLimit: 0.0,
+                        resetIntegral: true
+                    }
                 }
             };
         });
+        yaw_controller_active.update((_) => controllers.yaw.Type.PID);
 
         return;
     }
@@ -98,6 +114,27 @@ export function connect() {
                 connected: true,
                 is_connecting: false
             };
+        });
+
+        send_message({ readAllRegs: {} }).then((response) => {
+            if (response.result?.code) {
+                log(Log.Level.ERROR, `Failed to read all registers: ${response.result.msg}`);
+                return;
+            }
+
+            if (response.enableBalancing != null) enable_balancing.set(response.enableBalancing);
+            if (response.pitchControllerParams != null)
+                pitch_controller_params.set(response.pitchControllerParams);
+            if (response.pitchControllerActive != null)
+                pitch_controller_active.set(response.pitchControllerActive);
+            if (response.yawControllerParams != null)
+                yaw_controller_params.set(response.yawControllerParams);
+            if (response.yawControllerActive != null)
+                yaw_controller_active.set(response.yawControllerActive);
+            if (response.physicalCharacteristics != null)
+                physical_characteristics.set(response.physicalCharacteristics);
+            if (response.motorCalibrationLut != null)
+                motor_calibration.set(response.motorCalibrationLut);
         });
     };
     ws.onclose = (event) => {

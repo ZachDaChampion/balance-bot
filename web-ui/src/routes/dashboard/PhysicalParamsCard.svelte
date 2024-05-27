@@ -1,10 +1,10 @@
 <script lang="ts">
     import { Button, Card, TextFieldOutlined, CircularProgressIndeterminate } from 'm3-svelte';
-    import { physical_params } from '$lib/robot_state';
+    import { log, physical_characteristics } from '$lib/robot_state';
     import { websocket_state } from '$lib/connection';
-    import { send_physical_params_message } from '$lib/messaging';
+    import { write_register, read_register } from '$lib/messaging';
     import { float2str } from '$lib/util';
-    import type { IPhysicalParams } from '$lib/proto/proto';
+    import { Log, physical } from '$lib/proto/proto';
 
     let wheelbase: undefined | string = undefined;
     let wheel_radius: undefined | string = undefined;
@@ -13,19 +13,19 @@
     let torque_length: undefined | string = undefined;
 
     function reset() {
-        wheelbase = float2str($physical_params?.wheelBase, 4);
-        wheel_radius = float2str($physical_params?.wheelRadius, 4);
-        motor_max_speed = float2str($physical_params?.motorMaxSpeed, 4);
-        gravity = float2str($physical_params?.gravity, 4);
-        torque_length = float2str($physical_params?.torqueLength, 4);
+        wheelbase = float2str($physical_characteristics?.wheelBase, 4);
+        wheel_radius = float2str($physical_characteristics?.wheelRadius, 4);
+        motor_max_speed = float2str($physical_characteristics?.motorMaxSpeed, 4);
+        gravity = float2str($physical_characteristics?.gravity, 4);
+        torque_length = float2str($physical_characteristics?.torqueLength, 4);
     }
 
-    physical_params.subscribe((_) => {
+    physical_characteristics.subscribe((_) => {
         reset();
     });
 
     function send() {
-        const new_params: IPhysicalParams = {
+        const new_params: physical.ICharacteristics = {
             wheelRadius: parseFloat(wheel_radius ?? '0'),
             wheelBase: parseFloat(wheelbase ?? '0'),
             motorMaxSpeed: parseFloat(motor_max_speed ?? '0'),
@@ -34,14 +34,18 @@
         };
 
         if (!$websocket_state.connected || !$websocket_state.connection) return;
-        send_physical_params_message(new_params)
+        write_register({ physicalCharacteristics: new_params })
             .then((response) => {
-                console.log(
-                    `Received response for ${response.commandId} with code ${response.code}`
-                );
+                if (response.physicalCharacteristics)
+                    $physical_characteristics = response.physicalCharacteristics;
+                if (response.result)
+                    log(
+                        Log.Level.ERROR,
+                        `Error sending physical characteristics: ${response.result.msg}`
+                    );
             })
             .catch((error) => {
-                console.error(error);
+                log(Log.Level.ERROR, `Error sending physical characteristics: ${error}`);
             });
     }
 </script>
@@ -49,7 +53,7 @@
 <Card type="filled">
     <div id="card-content">
         <h1>Physical Characteristics</h1>
-        {#if $physical_params === null}
+        {#if $physical_characteristics === null}
             <div style="display: flex; justify-content: center; padding: 16px;">
                 <CircularProgressIndeterminate />
             </div>

@@ -7,9 +7,7 @@ message Params {
         controllers.ParamsPID base = 1;
     }
 
-    oneof data {
-        PID pid = 1;
-    }
+    optional PID pid = 1;
 }
 
 message State {
@@ -17,7 +15,7 @@ message State {
         controllers.StatePID base = 1;
     }
 
-    oneof data {
+    oneof active {
         PID pid = 1;
     }
 }

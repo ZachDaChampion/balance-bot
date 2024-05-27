@@ -6,6 +6,9 @@ export interface IResponse {
     /** Response requestId */
     requestId?: (number|null);
 
+    /** Response result */
+    result?: (Response.IResult|null);
+
     /** Response enableBalancing */
     enableBalancing?: (boolean|null);
 
@@ -29,9 +32,6 @@ export interface IResponse {
 
     /** Response motorCalibrationResult */
     motorCalibrationResult?: (motor_calib.IResult|null);
-
-    /** Response error */
-    error?: (Response.IError|null);
 }
 
 /** Represents a Response. */
@@ -45,6 +45,9 @@ export class Response implements IResponse {
 
     /** Response requestId. */
     public requestId: number;
+
+    /** Response result. */
+    public result?: (Response.IResult|null);
 
     /** Response enableBalancing. */
     public enableBalancing?: (boolean|null);
@@ -70,11 +73,29 @@ export class Response implements IResponse {
     /** Response motorCalibrationResult. */
     public motorCalibrationResult?: (motor_calib.IResult|null);
 
-    /** Response error. */
-    public error?: (Response.IError|null);
+    /** Response _enableBalancing. */
+    public _enableBalancing?: "enableBalancing";
 
-    /** Response payload. */
-    public payload?: ("enableBalancing"|"pitchControllerParams"|"pitchControllerActive"|"yawControllerParams"|"yawControllerActive"|"physicalCharacteristics"|"motorCalibrationLut"|"motorCalibrationResult"|"error");
+    /** Response _pitchControllerParams. */
+    public _pitchControllerParams?: "pitchControllerParams";
+
+    /** Response _pitchControllerActive. */
+    public _pitchControllerActive?: "pitchControllerActive";
+
+    /** Response _yawControllerParams. */
+    public _yawControllerParams?: "yawControllerParams";
+
+    /** Response _yawControllerActive. */
+    public _yawControllerActive?: "yawControllerActive";
+
+    /** Response _physicalCharacteristics. */
+    public _physicalCharacteristics?: "physicalCharacteristics";
+
+    /** Response _motorCalibrationLut. */
+    public _motorCalibrationLut?: "motorCalibrationLut";
+
+    /** Response _motorCalibrationResult. */
+    public _motorCalibrationResult?: "motorCalibrationResult";
 
     /**
      * Creates a new Response instance using the specified properties.
@@ -156,114 +177,118 @@ export class Response implements IResponse {
 
 export namespace Response {
 
-    /** Properties of an Error. */
-    interface IError {
+    /** Properties of a Result. */
+    interface IResult {
 
-        /** Error code */
-        code?: (Response.Error.Code|null);
+        /** Result code */
+        code?: (Response.Result.Code|null);
 
-        /** Error msg */
+        /** Result msg */
         msg?: (string|null);
     }
 
-    /** Represents an Error. */
-    class Error implements IError {
+    /** Represents a Result. */
+    class Result implements IResult {
 
         /**
-         * Constructs a new Error.
+         * Constructs a new Result.
          * @param [properties] Properties to set
          */
-        constructor(properties?: Response.IError);
+        constructor(properties?: Response.IResult);
 
-        /** Error code. */
-        public code: Response.Error.Code;
+        /** Result code. */
+        public code: Response.Result.Code;
 
-        /** Error msg. */
-        public msg: string;
+        /** Result msg. */
+        public msg?: (string|null);
+
+        /** Result _msg. */
+        public _msg?: "msg";
 
         /**
-         * Creates a new Error instance using the specified properties.
+         * Creates a new Result instance using the specified properties.
          * @param [properties] Properties to set
-         * @returns Error instance
+         * @returns Result instance
          */
-        public static create(properties?: Response.IError): Response.Error;
+        public static create(properties?: Response.IResult): Response.Result;
 
         /**
-         * Encodes the specified Error message. Does not implicitly {@link Response.Error.verify|verify} messages.
-         * @param message Error message or plain object to encode
+         * Encodes the specified Result message. Does not implicitly {@link Response.Result.verify|verify} messages.
+         * @param message Result message or plain object to encode
          * @param [writer] Writer to encode to
          * @returns Writer
          */
-        public static encode(message: Response.IError, writer?: $protobuf.Writer): $protobuf.Writer;
+        public static encode(message: Response.IResult, writer?: $protobuf.Writer): $protobuf.Writer;
 
         /**
-         * Encodes the specified Error message, length delimited. Does not implicitly {@link Response.Error.verify|verify} messages.
-         * @param message Error message or plain object to encode
+         * Encodes the specified Result message, length delimited. Does not implicitly {@link Response.Result.verify|verify} messages.
+         * @param message Result message or plain object to encode
          * @param [writer] Writer to encode to
          * @returns Writer
          */
-        public static encodeDelimited(message: Response.IError, writer?: $protobuf.Writer): $protobuf.Writer;
+        public static encodeDelimited(message: Response.IResult, writer?: $protobuf.Writer): $protobuf.Writer;
 
         /**
-         * Decodes an Error message from the specified reader or buffer.
+         * Decodes a Result message from the specified reader or buffer.
          * @param reader Reader or buffer to decode from
          * @param [length] Message length if known beforehand
-         * @returns Error
+         * @returns Result
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): Response.Error;
+        public static decode(reader: ($protobuf.Reader|Uint8Array), length?: number): Response.Result;
 
         /**
-         * Decodes an Error message from the specified reader or buffer, length delimited.
+         * Decodes a Result message from the specified reader or buffer, length delimited.
          * @param reader Reader or buffer to decode from
-         * @returns Error
+         * @returns Result
          * @throws {Error} If the payload is not a reader or valid buffer
          * @throws {$protobuf.util.ProtocolError} If required fields are missing
          */
-        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): Response.Error;
+        public static decodeDelimited(reader: ($protobuf.Reader|Uint8Array)): Response.Result;
 
         /**
-         * Verifies an Error message.
+         * Verifies a Result message.
          * @param message Plain object to verify
          * @returns `null` if valid, otherwise the reason why it is not
          */
         public static verify(message: { [k: string]: any }): (string|null);
 
         /**
-         * Creates an Error message from a plain object. Also converts values to their respective internal types.
+         * Creates a Result message from a plain object. Also converts values to their respective internal types.
          * @param object Plain object
-         * @returns Error
+         * @returns Result
          */
-        public static fromObject(object: { [k: string]: any }): Response.Error;
+        public static fromObject(object: { [k: string]: any }): Response.Result;
 
         /**
-         * Creates a plain object from an Error message. Also converts values to other types if specified.
-         * @param message Error
+         * Creates a plain object from a Result message. Also converts values to other types if specified.
+         * @param message Result
          * @param [options] Conversion options
          * @returns Plain object
          */
-        public static toObject(message: Response.Error, options?: $protobuf.IConversionOptions): { [k: string]: any };
+        public static toObject(message: Response.Result, options?: $protobuf.IConversionOptions): { [k: string]: any };
 
         /**
-         * Converts this Error to JSON.
+         * Converts this Result to JSON.
          * @returns JSON object
          */
         public toJSON(): { [k: string]: any };
 
         /**
-         * Gets the default type url for Error
+         * Gets the default type url for Result
          * @param [typeUrlPrefix] your custom typeUrlPrefix(default "type.googleapis.com")
          * @returns The default type url
          */
         public static getTypeUrl(typeUrlPrefix?: string): string;
     }
 
-    namespace Error {
+    namespace Result {
 
         /** Code enum. */
         enum Code {
-            UNKNOWN = 0
+            OK = 0,
+            ERR_UNKNOWN = 1
         }
     }
 }
@@ -568,6 +593,9 @@ export interface IMessage {
 
     /** Message log */
     log?: (ILog|null);
+
+    /** Message readAllRegs */
+    readAllRegs?: (google.protobuf.IEmpty|null);
 }
 
 /** Represents a Message. */
@@ -606,8 +634,11 @@ export class Message implements IMessage {
     /** Message log. */
     public log?: (ILog|null);
 
+    /** Message readAllRegs. */
+    public readAllRegs?: (google.protobuf.IEmpty|null);
+
     /** Message payload. */
-    public payload?: ("response"|"readCurrentReg"|"readSavedReg"|"writeCurrentReg"|"saveCurrentReg"|"calibrateMotors"|"robotState"|"log");
+    public payload?: ("response"|"readCurrentReg"|"readSavedReg"|"writeCurrentReg"|"saveCurrentReg"|"calibrateMotors"|"robotState"|"log"|"readAllRegs");
 
     /**
      * Creates a new Message instance using the specified properties.
@@ -1154,8 +1185,8 @@ export namespace controllers {
             /** Params pid. */
             public pid?: (controllers.pitch.Params.IPID|null);
 
-            /** Params data. */
-            public data?: "pid";
+            /** Params _pid. */
+            public _pid?: "pid";
 
             /**
              * Creates a new Params instance using the specified properties.
@@ -1360,8 +1391,8 @@ export namespace controllers {
             /** State pid. */
             public pid?: (controllers.pitch.State.IPID|null);
 
-            /** State data. */
-            public data?: "pid";
+            /** State active. */
+            public active?: "pid";
 
             /**
              * Creates a new State instance using the specified properties.
@@ -1823,8 +1854,8 @@ export namespace controllers {
             /** Params pid. */
             public pid?: (controllers.yaw.Params.IPID|null);
 
-            /** Params data. */
-            public data?: "pid";
+            /** Params _pid. */
+            public _pid?: "pid";
 
             /**
              * Creates a new Params instance using the specified properties.
@@ -2023,8 +2054,8 @@ export namespace controllers {
             /** State pid. */
             public pid?: (controllers.yaw.State.IPID|null);
 
-            /** State data. */
-            public data?: "pid";
+            /** State active. */
+            public active?: "pid";
 
             /**
              * Creates a new State instance using the specified properties.

@@ -2,34 +2,37 @@
     import { Button, Card } from 'm3-svelte';
     import { goto } from '$app/navigation';
     import { connect, websocket_state } from '$lib/connection';
-    import { robot_state } from '$lib/robot_state';
+    import { enable_balancing, log, robot_state } from '$lib/robot_state';
     import LabelledSwitch from '$lib/LabelledSwitch.svelte';
-    import { send_command_message } from '$lib/messaging';
-    import { Command } from '$lib/proto/proto';
+    import { write_register } from '$lib/messaging';
+    import { Log } from '$lib/proto/proto';
 
     let active: boolean = false;
-    let active_switch_timeout: NodeJS.Timeout | undefined = undefined;
 
     function set_active(val: boolean) {
+        if (val === $enable_balancing) return;
         if (!$websocket_state.connected || !$websocket_state.connection) return;
 
-        const cmd = val ? Command.START : Command.STOP;
-        send_command_message(cmd)
+        write_register({ enableBalancing: val })
             .then((response) => {
-                console.log(
-                    `Received response for ${response.commandId} with code ${response.code}`
-                );
+                if (response.enableBalancing != null) $enable_balancing = response.enableBalancing;
+                if (response.result)
+                    log(
+                        Log.Level.ERROR,
+                        `Error enabling/disablng balancing: ${response.result.msg}`
+                    );
             })
             .catch((error) => {
-                console.error(error);
+                log(Log.Level.ERROR, `Error enabling/disablng balancing: ${error}`);
+                active = $enable_balancing;
             });
-
-        active_switch_timeout = setTimeout(() => {
-            active = $robot_state?.active ?? false;
-        }, 100);
     }
 
     $: set_active(active);
+
+    enable_balancing.subscribe((_) => {
+        active = $enable_balancing;
+    });
 </script>
 
 <Card type="filled">
