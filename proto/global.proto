@@ -4,6 +4,7 @@ import "pitch_controllers.proto";
 import "yaw_controllers.proto";
 import "physical_characteristics.proto";
 import "motor_calibration.proto";
+import "control.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 
@@ -40,8 +41,9 @@ message RobotState {
     float right_motor_angle = 7; // Right motor angle in radians
     float left_motor_speed = 8; // Left motor speed in rpm
     float right_motor_speed = 9; // Right motor speed in rpm
-    controllers.pitch.State pitch_controller_state = 10;
-    controllers.yaw.State yaw_controller_state = 11;
+    controllers.pitch.State pitch_controller_state = 10; // State of active pitch controller
+    controllers.yaw.State yaw_controller_state = 11; // State of active yaw controller
+    float estimated_distance = 12; // Estimated distance driven (meters)
 }
 
 message Log {
@@ -69,5 +71,6 @@ message Message {
         RobotState robot_state = 8;
         Log log = 9;
         google.protobuf.Empty read_all_regs = 10;
+        control.Command control_command = 11;
     }
 }
