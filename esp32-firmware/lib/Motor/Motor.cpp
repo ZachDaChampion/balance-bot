@@ -376,9 +376,9 @@ esp_err_t Motor::update_data() {
     //
     // delta_ticks: ticks
     // delta_time: microseconds (sec * 1e6)
-    // encoder_speed: 1e3 * ticks / sec
+    // encoder_speed: ticks / sec
     //
-    // encoder_speed = (1e3 * delta_ticks) / (delta_time * 1e-6)
+    // encoder_speed = (delta_ticks) / (delta_time * 1e-6)
     int64_t delta_time = latch_time - last_latch_time;
     ESP_RETURN_ON_FALSE(delta_time != 0, ESP_ERR_INVALID_STATE, log_tag,
                         "Delta time is zero; cannot compute encoder speed");

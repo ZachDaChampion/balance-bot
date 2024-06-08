@@ -259,9 +259,9 @@ class Motor {
     int64_t get_encoder_count() const;
 
     /**
-     * Get the unfiltered measured speed of the encoder in 1000 * ticks/sec (as of the last update).
+     * Get the unfiltered measured speed of the encoder in ticks/sec (as of the last update).
      *
-     * @return The current speed in 1000 * ticks/sec, or 0 if the motor is not attached.
+     * @return The current speed in ticks/sec, or 0 if the motor is not attached.
      */
     int32_t get_encoder_speed() const;
 
@@ -320,7 +320,7 @@ class Motor {
     int raw_encoder_count;        ///< The raw number of encoder ticks at the most recent latch.
     int64_t prev_encoder_count;   ///< The total number of encoder ticks at the previous update.
     int64_t total_encoder_count;  ///< The total number of encoder ticks at the current update.
-    int32_t encoder_speed;        ///< The speed of the encoder at last update, in 1000 * ticks/sec.
+    int32_t encoder_speed;        ///< The speed of the encoder at last update, in ticks/sec.
 
     int64_t last_latch_time;  ///< The uptime when `latch_encoder()` was previously called (us).
     int64_t latch_time;       ///< The uptime when `latch_encoder()` was most recently called (us).
