@@ -342,18 +342,18 @@ class Motor {
      * Pulse counter handles and data, used for encoder.
      */
     struct {
-        pcnt_unit_handle_t unit;          ///< A handle for the encoder's pulse counter unit.
-        pcnt_channel_handle_t chan_a;     ///< A handle for the encoder's channel A.
-        pcnt_channel_handle_t chan_b;     ///< A handle for the encoder's channel B.
-        QueueHandle_t watch_point_queue;  ///< A queue populated by watch point events.
+        pcnt_unit_handle_t unit = nullptr;          ///< The encoder's pulse counter unit.
+        pcnt_channel_handle_t chan_a = nullptr;     ///< A handle for the encoder's channel A.
+        pcnt_channel_handle_t chan_b = nullptr;     ///< A handle for the encoder's channel B.
+        QueueHandle_t watch_point_queue = nullptr;  ///< A queue populated by watch point events.
     } pcnt;
 
     /**
      * MCPWM handles and data, used for motor control.
      */
     struct {
-        mcpwm_cmpr_handle_t comparator;  ///< The comparator handle for the motor controller.
-        mcpwm_gen_handle_t generator;    ///< The generator handle for the motor controller.
+        mcpwm_cmpr_handle_t comparator = nullptr;  ///< The comparator for the motor controller.
+        mcpwm_gen_handle_t generator = nullptr;    ///< The generator for the motor controller.
     } mcpwm;
 };
 

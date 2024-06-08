@@ -41,7 +41,7 @@ esp_err_t Motor::init_mcpwm_operator(int group_id, mcpwm_timer_handle_t* ret_tim
     ESP_LOGV(TAG, "Create MCPWM timer");
     ESP_RETURN_ON_ERROR(
         [&] {
-            mcpwm_timer_config_t config;
+            mcpwm_timer_config_t config = {};
             config.group_id = 0;
             config.clk_src = MCPWM_TIMER_CLK_SRC_DEFAULT;
             config.resolution_hz = PWM_TIMEBASE_RESOLUTION_HZ;
@@ -55,7 +55,7 @@ esp_err_t Motor::init_mcpwm_operator(int group_id, mcpwm_timer_handle_t* ret_tim
     ESP_LOGV(TAG, "Create MCPWM operator");
     ESP_RETURN_ON_ERROR(
         [&] {
-            mcpwm_operator_config_t config;
+            mcpwm_operator_config_t config = {};
             config.group_id = group_id;
             return mcpwm_new_operator(&config, ret_oper);
         }(),
@@ -87,7 +87,7 @@ esp_err_t Motor::attach_pcnt(int gpio_a, int gpio_b) {
     ESP_LOGV(log_tag, "Init PCNT unit");
     ESP_RETURN_ON_ERROR(
         [&] {
-            pcnt_unit_config_t config;
+            pcnt_unit_config_t config = {};
             config.low_limit = PCNT_LOW_LIMIT;
             config.high_limit = PCNT_HIGH_LIMIT;
             return pcnt_new_unit(&config, &pcnt.unit);
@@ -154,6 +154,12 @@ esp_err_t Motor::attach_pcnt(int gpio_a, int gpio_b) {
         }(),
         log_tag, "Failed to set watch point callbacks");
 
+    // Clear and start PCNT.
+    ESP_LOGV(log_tag, "Start PCNT unit");
+    ESP_RETURN_ON_ERROR(pcnt_unit_enable(pcnt.unit), log_tag, "Failed to enable PCNT unit");
+    ESP_RETURN_ON_ERROR(pcnt_unit_clear_count(pcnt.unit), log_tag, "Failed to clear PCNT counter");
+    ESP_RETURN_ON_ERROR(pcnt_unit_start(pcnt.unit), log_tag, "Failed to start PCNT unit");
+
     return ESP_OK;
 }
 
@@ -174,8 +180,8 @@ esp_err_t Motor::attach_mcpwm(int pwm_pin, int mcpwm_group_id,
     ESP_LOGV(log_tag, "Create MCPWM comparator");
     ESP_RETURN_ON_ERROR(
         [&] {
-            mcpwm_comparator_config_t config;
-            config.flags.update_cmp_on_tez = true;  // Update comparator when timer equaks zero
+            mcpwm_comparator_config_t config = {};
+            config.flags.update_cmp_on_tez = 1;  // Update comparator when timer equaks zero
             return mcpwm_new_comparator(mcpwm_oper, &config, &mcpwm.comparator);
         }(),
         log_tag, "Failed to create MCPWM comparator");
@@ -184,7 +190,7 @@ esp_err_t Motor::attach_mcpwm(int pwm_pin, int mcpwm_group_id,
     ESP_LOGV(log_tag, "Create MCPWM generator");
     ESP_RETURN_ON_ERROR(
         [&] {
-            mcpwm_generator_config_t config;
+            mcpwm_generator_config_t config = {};
             config.gen_gpio_num = pwm_pin;
             return mcpwm_new_generator(mcpwm_oper, &config, &mcpwm.generator);
         }(),
@@ -377,8 +383,9 @@ esp_err_t Motor::update_data() {
     ESP_RETURN_ON_FALSE(delta_time != 0, ESP_ERR_INVALID_STATE, log_tag,
                         "Delta time is zero; cannot compute encoder speed");
     int64_t delta_ticks = total_encoder_count - prev_encoder_count;
-    encoder_speed = (delta_ticks * 1e3 * 1e6) / delta_time;
-    ESP_LOGV(log_tag, "Encoder speed: %ld", encoder_speed);
+    encoder_speed = (delta_ticks * 1e6) / delta_time;
+    ESP_LOGV(log_tag, "Encoder speed: %lld ticks / %lld us = %ld", delta_ticks, delta_time,
+             encoder_speed);
 
     return ESP_OK;
 }
@@ -407,10 +414,10 @@ esp_err_t Motor::move_speed(int rpm, bool account_for_static_friction, bool brak
     ESP_LOGD(log_tag, "Moving motor at %d RPM", rpm);
 
     // Find new pulse width from lookup table.
+    const int old_base_pw = base_pw;
     base_pw = calibration.lut[rpm + MAX_RPM];
 
     // If we are already moving at the desired speed, return early.
-    const int old_base_pw = base_pw;
     if (base_pw == old_base_pw) {
         ESP_LOGV(log_tag, "Motor already at %d RPM", rpm);
         return ESP_OK;
@@ -439,6 +446,7 @@ esp_err_t Motor::move_speed(int rpm, bool account_for_static_friction, bool brak
         pw_modifier_cutoff = 0;
     }
 
+    ESP_LOGV(log_tag, "Base PW: %d\t\tModifier PW: %d", base_pw, pw_modifier);
     return move_pwm_raw(base_pw + pw_modifier);
 }
 
@@ -455,8 +463,9 @@ esp_err_t Motor::move_pwm(int pulse_width) {
 }
 
 esp_err_t Motor::move_pwm_raw(int pulse_width) {
-    const int clamped = std::clamp(pulse_width, PW_MIN, PW_MAX);
-    return mcpwm_comparator_set_compare_value(mcpwm.comparator, clamped);
+    if (pulse_width < PW_MIN) pulse_width = PW_MIN;
+    if (pulse_width > PW_MAX) pulse_width = PW_MAX;
+    return mcpwm_comparator_set_compare_value(mcpwm.comparator, pulse_width);
 }
 
 int64_t Motor::get_encoder_count() const { return total_encoder_count; }
