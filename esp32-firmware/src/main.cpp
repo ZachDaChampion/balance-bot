@@ -1,3 +1,4 @@
+#include <Motor.hpp>
 
 #include "driver/gpio.h"
 #include "driver/pulse_cnt.h"
@@ -12,4 +13,4 @@ extern "C" {
 void app_main(void);
 }
 
-void app_main() {}
+void app_main() { Motor m("left", 'l', "motor_left"); }

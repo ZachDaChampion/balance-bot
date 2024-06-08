@@ -11,10 +11,15 @@
 #include <driver/mcpwm_prelude.h>
 #include <driver/pulse_cnt.h>
 #include <esp_err.h>
-#include <esp_vfs.h>
+#include <freertos/FreeRTOS.h>
+#include <freertos/queue.h>
 #include <limits.h>
+#include <nvs.h>
+#include <nvs_flash.h>
 #include <stddef.h>
 #include <stdint.h>
+
+#include <functional>
 
 class Motor {
    public:
@@ -84,18 +89,19 @@ class Motor {
      * PWM signals.
      */
     struct Calibration {
-        int static_friction_neg;  ///< The minimum reverse PW to overcome static friction.
-        int static_friction_pos;  ///< The minimum forward PW to overcome static friction.
-        int lut[LUT_SIZE];        ///< The LUT that maps RPM to PW.
+        int32_t static_friction_neg;  ///< The minimum reverse PW to overcome static friction.
+        int32_t static_friction_pos;  ///< The minimum forward PW to overcome static friction.
+        int32_t lut[LUT_SIZE];        ///< The LUT that maps RPM to PW.
     };
 
     /**
      * Construct a new Motor object.
      *
      * @param[in] name The name of the motor ("left" or "right").
+     * @param[in] id The single-character ID of the motor ('l' or 'r').
      * @param[in] log_tag The tag to use for logging ("Left Motor" or "Right Motor").
      */
-    Motor(const char* name, const char* log_tag);
+    Motor(const char* name, const char id, const char* log_tag);
 
     /**
      * Destroy the Motor object. This will detach the motor from the GPIO pins and clean up the
@@ -136,34 +142,37 @@ class Motor {
     /**
      * Detach the motor from the GPIO pins. This will stop the motor and clean up the MCPWM and
      * PCNT. The motor can be re-attached later with `attach()`.
-     *
-     * @return
-     *     - ESP_OK: Motor detached successfully.
-     *     - ESP_ERR_INVALID_STATE: Motor was not attached.
      */
-    esp_err_t detach();
+    void detach();
+
+    /**
+     * Returns whether or not the motor has been attached to GPIO pins. If this returns true, all
+     * functionality of the Motor is available.
+     *
+     * @return True if the motor is attached, false otherwise.
+     */
+    bool is_attached() const;
 
     /**
      * Load the calibration data for the motor from persistent storage. If the calibration data
      * cannot be loaded, the motor will not be calibrated.
      *
-     * @param[in] vfs The Virtual File System to load the calibration data from.
+     * @param[in] nvs The NVS handle to load the calibration data from.
      * @return
      *      - ESP_OK: Calibration data loaded successfully.
      *      - ESP_ERR_NOT_FOUND: Calibration data not found.
      */
-
-    esp_err_t load_calibration(esp_vfs_t& vfs);
+    esp_err_t load_calibration(const nvs_handle_t nvs);
 
     /**
      * Save the calibration data for the motor to persistent storage.
      *
-     * @param[in] vfs The Virtual File System to save the calibration data to.
+     * @param[in] nvs The NVS handle to save the calibration data to.
      * @return
      *      - ESP_OK: Calibration data saved successfully.
      *      - ESP_FAIL: Calibration data could not be saved.
      */
-    esp_err_t save_calibration(esp_vfs_t& vfs);
+    esp_err_t save_calibration(const nvs_handle_t nvs);
 
     /**
      * Sets a new set of calibration data. The motor will use this new data to linearize its PWM
@@ -172,24 +181,16 @@ class Motor {
      * @note This new data will not be written to persistent storage; you must call
      * `save_calibration()` for that.
      *
-     * @param[in] calibration The new calibration data.
+     * @param[in] new_cal The new calibration data.
      */
-    void set_calibration(const Calibration& calibration);
-
-    /**
-     * Returns whether or not the motor has been attached to GPIO pins. If this returns true, all
-     * functionality of the Motor is available.
-     *
-     * @return True if the motor is attached, false otherwise.
-     */
-    bool attached();
+    void set_calibration(const Calibration& new_cal);
 
     /**
      * Get the current calibration data for the motor.
      *
      * @return The current calibration data.
      */
-    Calibration get_calibration();
+    Calibration get_calibration() const;
 
     /**
      * Latch the current encoder value along with the current uptime. This method is seperate from
@@ -212,7 +213,18 @@ class Motor {
      *      - ESP_OK: Motor state updated successfully.
      *      - ESP_ERR_INVALID_STATE: Motor not attached.
      */
-    esp_err_t update();
+    esp_err_t update_data();
+
+    /**
+     * Update the motor's motion. This method should be called at a regular interval to keep the
+     * motor's motion up to date. It should always be called after `update_data()` and after any
+     * commands are run (e.g. `move_speed`).
+     *
+     * @return
+     *     - ESP_OK: Motor motion updated successfully.
+     *     - ESP_ERR_INVALID_STATE: Motor not attached.
+     */
+    esp_err_t update_motion();
 
     /**
      * Sets the speed of the motor in RPM. This will use the linearization LUT to select an
@@ -221,11 +233,12 @@ class Motor {
      *
      * @param[in] rpm The speed to set the motor to in RPM.
      * @param[in] accout_for_static_friction Whether or not to account for static friction.
+     * @param[in] brake Whether or not to apply a braking force when stopping or changing direction.
      * @return
      *      - ESP_OK: Motor speed set successfully.
      *      - ESP_ERR_INVALID_STATE: Motor not attached.
      */
-    esp_err_t move_speed(int rpm, bool account_for_static_friction = true);
+    esp_err_t move_speed(int rpm, bool account_for_static_friction = true, bool brake = true);
 
     /**
      * Sends a specified PWM signal to the motor controller, bypassing the linearization LUT. This
@@ -239,25 +252,29 @@ class Motor {
     esp_err_t move_pwm(int pulse_width);
 
     /**
-     * Get the pulse width being sent to the motor controller.
-     *
-     * @return The current pulse width, or 0 if the motor is not attached.
-     */
-    int32_t get_pwm();
-
-    /**
      * Get the current cumulative encoder count (as of the last update).
      *
      * @return The current encoder count, or 0 if the motor is not attachd.
      */
-    int32_t get_encoder_count();
+    int64_t get_encoder_count() const;
 
     /**
-     * Get the unfiltered measured speed of the motor in RPM (as of the last update).
+     * Get the unfiltered measured speed of the encoder in 1000 * ticks/sec (as of the last update).
      *
-     * @return The current speed in RPM, or 0 if the motor is not attached.
+     * @return The current speed in 1000 * ticks/sec, or 0 if the motor is not attached.
      */
-    int32_t get_speed();
+    int32_t get_encoder_speed() const;
+
+    /**
+     * The amount of time (in us) to account for static friction when the motor is started from
+     * rest.
+     */
+    int static_friction_base_time = 1e5;
+
+    /**
+     * The amount of time (in us) to account for braking.
+     */
+    int brake_base_time = 1e5;
 
    private:
     /**
@@ -281,15 +298,45 @@ class Motor {
      */
     esp_err_t attach_mcpwm(int pwm_pin, int mcpwm_group_id, const mcpwm_oper_handle_t mcpwm_oper);
 
-    const char* name;           ///< The name of the motor ("left" or "right").
-    const char* log_tag;        ///< The motor's tag, used for logging.
-    int32_t command_pwm;        ///< The current PWM command being sent to the motor controller.
-    int32_t encoder_count;      ///< The cumulative number of encoder pulses.
-    int32_t new_encoder_count;  ///< The number of additional encoder ticks between latches.
-    bool attached;              ///< Wether or not the motor has been attached to GPIO.
-    Calibration calibration;    ///< The calibration data for the motor.
-    int64_t last_latch_time;    ///< The uptime when `latch_encoder()` was previously called (us).
-    int64_t latch_time;  ///< The uptime when `latch_encoder()` was most recently called (us).
+    /**
+     * Move the motor with a specified pulse width, without resetting the modifier. Pulse widths
+     * that are out of range will be clamped; an error will not be returned.
+     *
+     * @param[in] pulse_width The pulse width to send to the motor controller.
+     * @return
+     *     - ESP_OK: Pulse width set successfully.
+     *     - ESP_ERR_INVALID_STATE: Motor not attached.
+     */
+    esp_err_t move_pwm_raw(int pulse_width);
+
+    const char* name;     ///< The name of the motor ("left" or "right").
+    const char id;        ///< Single-character ID of the motor ('l' or 'r').
+    const char* log_tag;  ///< The motor's tag, used for logging.
+
+    bool attached;            ///< Whether or not the motor has been attached to GPIO.
+    Calibration calibration;  ///< The calibration data for the motor.
+
+    int prev_raw_encoder_count;   ///< The raw number of encoder ticks at the previous latch.
+    int raw_encoder_count;        ///< The raw number of encoder ticks at the most recent latch.
+    int64_t prev_encoder_count;   ///< The total number of encoder ticks at the previous update.
+    int64_t total_encoder_count;  ///< The total number of encoder ticks at the current update.
+    int32_t encoder_speed;        ///< The speed of the encoder at last update, in 1000 * ticks/sec.
+
+    int64_t last_latch_time;  ///< The uptime when `latch_encoder()` was previously called (us).
+    int64_t latch_time;       ///< The uptime when `latch_encoder()` was most recently called (us).
+
+    int base_pw;      ///< The current pulse width, before applying modifiers.
+    int pw_modifier;  ///< The current pulse width modifier (static friction correction or braking).
+    int64_t pw_modifier_cutoff;  ///< When to stop applying pw modifier.
+
+    /**
+     * NVS keys used to store calibration data.
+     */
+    struct {
+        char label_fric_neg[10] = "!_static-";  ///< The key for the negative static friction value.
+        char label_fric_pos[10] = "!_static+";  ///< The key for the positive static friction value.
+        char label_lut[6] = "!_lut";            ///< The key for the LUT.
+    } nvs_keys;
 
     /**
      * Pulse counter handles and data, used for encoder.
