@@ -140,8 +140,7 @@ esp_err_t Motor::attach_pcnt(int gpio_a, int gpio_b) {
     pcnt.watch_point_queue = xQueueCreate(8, sizeof(int));
     ESP_RETURN_ON_ERROR(
         [&] {
-            const auto on_reach = [](pcnt_unit_handle_t, const pcnt_watch_event_data_t* edata,
-                                     void* ctx) {
+            const auto f = [](pcnt_unit_handle_t, const pcnt_watch_event_data_t* edata, void* ctx) {
                 BaseType_t high_task_wakeup;
                 QueueHandle_t queue = static_cast<QueueHandle_t>(ctx);
                 xQueueSendFromISR(queue, &(edata->watch_point_value), &high_task_wakeup);
@@ -149,7 +148,7 @@ esp_err_t Motor::attach_pcnt(int gpio_a, int gpio_b) {
             };
 
             pcnt_event_callbacks_t cbs_struct;
-            cbs_struct.on_reach = on_reach;
+            cbs_struct.on_reach = f;
             return pcnt_unit_register_event_callbacks(pcnt.unit, &cbs_struct,
                                                       pcnt.watch_point_queue);
         }(),
@@ -233,6 +232,9 @@ esp_err_t Motor::attach(int pwm_pin, int enc_pin_a, int enc_pin_b, int mcpwm_gro
     encoder_speed = 0;
     last_latch_time = 0;
     latch_time = 0;
+    base_pw = PW_NEUTRAL;
+    pw_modifier = 0;
+    pw_modifier_cutoff = 0;
 
     // Attach PCNT and MCPWM.
     ESP_LOGD(log_tag, "Attaching");
