@@ -1,16 +1,18 @@
+#include <driver/gpio.h>
+#include <driver/pulse_cnt.h>
+#include <esp_http_server.h>
+#include <esp_log.h>
+#include <esp_sleep.h>
 #include <esp_timer.h>
+#include <freertos/FreeRTOS.h>
+#include <freertos/queue.h>
+#include <freertos/task.h>
+#include <sdkconfig.h>
 
 #include <Motor.hpp>
-#include <networking.hpp>
 
-#include "driver/gpio.h"
-#include "driver/pulse_cnt.h"
-#include "esp_log.h"
-#include "esp_sleep.h"
-#include "freertos/FreeRTOS.h"
-#include "freertos/queue.h"
-#include "freertos/task.h"
-#include "sdkconfig.h"
+#include "auth.hpp"
+#include "networking.hpp"
 
 extern "C" {
 void app_main(void);
@@ -51,35 +53,10 @@ void app_main() {
     }
     ESP_ERROR_CHECK(ret);
 
-    ESP_ERROR_CHECK(wifi::connect("ssid", "password", 4));
+    ESP_ERROR_CHECK(wifi::connect(SSID, PASSWORD, 4));
 
-    esp_log_level_set("left motor", ESP_LOG_INFO);
+    httpd_handle_t server;
+    webserver::start_webserver(&server);
 
-    mcpwm_timer_handle_t mcpwm_timer;
-    mcpwm_oper_handle_t mcpwm_operator;
-    ESP_ERROR_CHECK(Motor::init_mcpwm_operator(0, &mcpwm_timer, &mcpwm_operator));
-
-    Motor m("left", 'l', "left motor");
-    m.attach(PIN_MOTOR_L, PIN_ENC_L_A, PIN_ENC_L_B, 0, mcpwm_operator);
-
-    // Enable and start timer.
-    ESP_LOGI("main", "Enable and start timer");
-    ESP_ERROR_CHECK(mcpwm_timer_enable(mcpwm_timer));
-    ESP_ERROR_CHECK(mcpwm_timer_start_stop(mcpwm_timer, MCPWM_TIMER_START_NO_STOP));
-
-    // Spin motor from -100RPM to 100RPM and back repeatedly.
-    for (int i = 0; i <= 100; ++i) {
-        update(m, i);
-        vTaskDelay(pdMS_TO_TICKS(80));
-    }
-    while (1) {
-        for (int i = 100; i >= -100; --i) {
-            update(m, i);
-            vTaskDelay(pdMS_TO_TICKS(80));
-        }
-        for (int i = -100; i <= 100; ++i) {
-            update(m, i);
-            vTaskDelay(pdMS_TO_TICKS(80));
-        }
-    }
+    while (1) vTaskDelay(pdMS_TO_TICKS(1000));
 }
