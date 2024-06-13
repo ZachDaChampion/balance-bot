@@ -58,5 +58,10 @@ void app_main() {
     httpd_handle_t server;
     webserver::start_webserver(&server);
 
-    while (1) vTaskDelay(pdMS_TO_TICKS(1000));
+    uint8_t* msg = const_cast<uint8_t*>(reinterpret_cast<const uint8_t*>("hello world"));
+    while (1) {
+        vTaskDelay(pdMS_TO_TICKS(1000));
+        const esp_err_t res = webserver::send_sync(server, msg, 11);
+        if (res != ESP_OK) ESP_LOGW("main", "Failed to send (%s)", esp_err_to_name(res));
+    }
 }

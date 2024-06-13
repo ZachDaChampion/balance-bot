@@ -11,17 +11,6 @@
 #include <esp_err.h>
 #include <freertos/queue.h>
 #include <freertos/stream_buffer.h>
-#include <protobuf-generated/global.h>
-
-#include <Motor.hpp>
-#include <functional>
-
-template <uint32_t RESPONSE_RESULT_MSG_LEN, uint32_t LOG_LEN, uint32_t LUT_LEN,
-          uint32_t MEASUREMENTS_LEN>
-using SimpleMessage =
-    Message<RESPONSE_RESULT_MSG_LEN, LUT_LEN, LUT_LEN, LUT_LEN, MEASUREMENTS_LEN, MEASUREMENTS_LEN,
-            MEASUREMENTS_LEN, LUT_LEN, LUT_LEN, LUT_LEN, LUT_LEN, LUT_LEN, LUT_LEN, LOG_LEN>;
-using DefaultMessage = SimpleMessage<128, 256, Motor::LUT_SIZE, 0>;
 
 namespace wifi {
 
@@ -69,6 +58,19 @@ esp_err_t start_webserver(httpd_handle_t* out_server);
  *     - ESP_INVALID_ARG if `server` is NULL.
  */
 esp_err_t stop_webserver(const httpd_handle_t server);
+
+/**
+ * Send data over the WebSocket connection synchronously. This function will block until the data is
+ * sent.
+ *
+ * @param[in] server The handle for the HTTP server.
+ * @param[in] data The data to send.
+ * @param[in] len The length of the data.
+ * @return
+ *      - ESP_OK on success.
+ *
+ */
+esp_err_t send_sync(const httpd_handle_t server, uint8_t* data, size_t len);
 
 };  // namespace webserver
 

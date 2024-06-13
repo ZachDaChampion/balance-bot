@@ -163,6 +163,8 @@ static const char* TAG = "webserver";
 
 QueueHandle_t recv_queue = nullptr;
 StreamBufferHandle_t recv_buffer = nullptr;
+static StreamBufferHandle_t send_buffer = nullptr;
+static int fd = -1;
 
 /**
  * URI handler for the WebSocket Server. This function is primarily responsible for populating the
@@ -174,6 +176,7 @@ StreamBufferHandle_t recv_buffer = nullptr;
 static esp_err_t wss_handler(httpd_req_t* req) {
     // Handle WSS opening handshake.
     if (req->method == HTTP_GET) {
+        fd = httpd_req_to_sockfd(req);
         ESP_LOGI(TAG, "WebSocket connection has opened");
         return ESP_OK;
     }
@@ -279,8 +282,10 @@ esp_err_t start_webserver(httpd_handle_t* out_server) {
 
     if (recv_queue != nullptr) vQueueDelete(recv_queue);
     if (recv_buffer != nullptr) vStreamBufferDelete(recv_buffer);
+    if (send_buffer != nullptr) vStreamBufferDelete(send_buffer);
     recv_queue = xQueueCreate(32, sizeof(int));
     recv_buffer = xStreamBufferCreate(8000, 7500);
+    send_buffer = xStreamBufferCreate(8000, 7500);
 
     const httpd_config_t config = HTTPD_DEFAULT_CONFIG();
 
@@ -298,6 +303,17 @@ esp_err_t stop_webserver(const httpd_handle_t server) {
     ESP_RETURN_ON_ERROR(httpd_stop(server), TAG, "Failed to stop webserver");
     ESP_LOGI(TAG, "Stopped webserver");
     return ESP_OK;
+}
+
+esp_err_t send_sync(const httpd_handle_t server, uint8_t* data, size_t len) {
+    if (fd == -1) return ESP_ERR_INVALID_STATE;
+    httpd_ws_frame_t frame = {};
+    frame.type = HTTPD_WS_TYPE_BINARY;
+    frame.payload = data;
+    frame.len = len;
+    frame.final = true;
+    frame.fragmented = false;
+    return httpd_ws_send_data(server, fd, &frame);
 }
 
 };  // namespace webserver
