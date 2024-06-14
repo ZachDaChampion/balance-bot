@@ -1,3 +1,0 @@
-[submodule "esp32-firmware/lib/embeddedproto"]
-	path = esp32-firmware/lib/embeddedproto
-	url = git@github.com:Embedded-AMS/EmbeddedProto.git

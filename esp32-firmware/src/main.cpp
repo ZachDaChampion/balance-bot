@@ -10,6 +10,7 @@
 #include <sdkconfig.h>
 
 #include <Motor.hpp>
+#include <WifiConnection.hpp>
 
 #include "auth.hpp"
 #include "networking.hpp"
@@ -53,7 +54,8 @@ void app_main() {
     }
     ESP_ERROR_CHECK(ret);
 
-    ESP_ERROR_CHECK(wifi::connect(SSID, PASSWORD, 4));
+    WifiConnection wifi = WifiConnection::create("wifi connection");
+    ESP_ERROR_CHECK(wifi.connect(SSID, PASSWORD, 4));
 
     httpd_handle_t server;
     webserver::start_webserver(&server);

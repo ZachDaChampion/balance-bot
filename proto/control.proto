@@ -1,7 +1,0 @@
-syntax = "proto3";
-package control;
-
-message Command {
-    float linear = 1; // Linear speed (meters/second)
-    float angular = 2; // Angular speed (deg/sec)
-}

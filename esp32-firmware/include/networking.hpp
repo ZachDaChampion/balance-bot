@@ -9,22 +9,9 @@
 #define NETWORKING_HPP_
 
 #include <esp_err.h>
+#include <esp_http_server.h>
 #include <freertos/queue.h>
 #include <freertos/stream_buffer.h>
-
-namespace wifi {
-
-/**
- * Connect to a wifi access point.
- *
- * @param[in] ssid SSID of the access point.
- * @param[in] pass Password of the access point.
- * @param[in] max_retries Number of times to retry a failed connection before giving up.
- * @return
- */
-esp_err_t connect(const char* ssid, const char* pass, int max_retries);
-
-};  // namespace wifi
 
 namespace webserver {
 

@@ -1,0 +1,214 @@
+syntax = "proto3";
+
+package BalanceBotProtobuf;
+
+/* ---------------------------------------------------------------------------------------------- */
+/*                                             Global                                             */
+/* ---------------------------------------------------------------------------------------------- */
+
+/* -------------------------------------- Pitch Controller -------------------------------------- */
+
+enum PitchControllerType {
+    PITCH_PID = 0;
+}
+
+message PitchPID {
+    float kp = 1;
+    float ki = 2;
+    float kd = 3;
+    float integral_zero_threshold = 4;
+    float integral_saturation_limit = 5;
+    bool reset_integral = 6;
+    bool add_gravity = 7;
+}
+
+message PitchPIDState {
+    float error = 1;
+    float integral = 2;
+    float derivative = 3;
+    float output = 4;
+    float saturated = 5;
+}
+
+message PitchController {
+    PitchControllerType active = 1;
+    PitchPID pid = 2;
+}
+
+message PitchControllerState {
+    oneof state {
+        PitchPIDState pid = 1;
+    }
+}
+
+/* --------------------------------------- Yaw Controller --------------------------------------- */
+
+enum YawControllerType {
+    YAW_PID = 0;
+}
+
+message YawPID {
+    float kp = 1;
+    float ki = 2;
+    float kd = 3;
+    float integral_zero_threshold = 4;
+    float integral_saturation_limit = 5;
+    bool reset_integral = 6;
+}
+
+message YawPIDState {
+    float error = 1;
+    float integral = 2;
+    float derivative = 3;
+    float output = 4;
+    float saturated = 5;
+}
+
+message YawController {
+    YawControllerType active = 1;
+    YawPID pid = 2;
+}
+
+message YawControllerState {
+    oneof state {
+        YawPIDState pid = 1;
+    }
+}
+
+/* ---------------------------------- Physical Characteristics ---------------------------------- */
+
+message PhysicalCharacteristics {
+    float wheel_radius = 1;
+    float wheel_base = 2;
+    float gravity_accel = 3;
+    float torque_length = 4;
+}
+
+/* ---------------------------------------- Motor Config ---------------------------------------- */
+
+message MotorConfig {
+    uint32 max_speed = 1;
+    uint32 static_friction_neg = 2;
+    uint32 static_friction_pos = 3;
+    uint32 static_friction_time = 4;
+    uint32 brake_time = 5;
+    repeated uint32 lut = 6;
+}
+
+/* ---------------------------------------------------------------------------------------------- */
+/*                                             Web2Bot                                            */
+/* ---------------------------------------------------------------------------------------------- */
+
+/* --------------------------------------- Drive the Robot -------------------------------------- */
+
+message Drive {
+    float linear = 1;
+    float angular = 2;
+}
+
+/* ------------------------------------ Main Web2Bot Message ------------------------------------ */
+
+enum OptionalBool {
+    BOOL_FALSE = 0;
+    BOOL_TRUE = 1;
+    BOOL_UNSET = 2;
+}
+
+message Web2Bot {
+    uint32 id = 1;
+
+    // Write data to temporary storage.
+    OptionalBool write_enable_balancing = 2;
+    PitchController write_pitch = 3;
+    YawController write_yaw = 4;
+    PhysicalCharacteristics write_physical = 5;
+    MotorConfig write_motor_l = 6;
+    MotorConfig write_motor_r = 7;
+
+    // Save data to persistent storage.
+    bool save_enable_balancing = 8;
+    bool save_pitch = 9;
+    bool save_yaw = 10;
+    bool save_physical = 11;
+    bool save_motor_l = 12;
+    bool save_motor_r = 13;
+
+    // Read currently loaded data.
+    bool read_curr_enable_balancing = 14;
+    bool read_curr_pitch = 15;
+    bool read_curr_yaw = 16;
+    bool read_curr_physical = 17;
+    bool read_curr_motor_l = 18;
+    bool read_curr_motor_r = 19;
+
+    // Read saved data.
+    bool read_saved_enable_balancing = 20;
+    bool read_saved_pitch = 21;
+    bool read_saved_yaw = 22;
+    bool read_saved_physical = 23;
+    bool read_saved_motor_l = 24;
+    bool read_saved_motor_r = 25;
+
+    // Load saved data to current data.
+    bool load_enable_balancing = 26;
+    bool load_pitch = 27;
+    bool load_yaw = 28;
+    bool load_physical = 29;
+    bool load_motor_l = 30;
+    bool load_motor_r = 31;
+
+    // Drive the robot.
+    Drive drive = 32;
+}
+
+/* ---------------------------------------------------------------------------------------------- */
+/*                                             Bot2Web                                            */
+/* ---------------------------------------------------------------------------------------------- */
+
+/* ----------------------------------------- Robot State ---------------------------------------- */
+
+message MotorState {
+    float angle = 1;
+    float measured_speed = 2;
+    float cmd_speed = 3;
+}
+
+message RobotState {
+    int64 timestamp = 1;
+    float pitch = 2;
+    float yaw = 3;
+    MotorState left_motor = 4;
+    MotorState right_motor = 5;
+    PitchControllerState pitch_state = 6;
+    YawControllerState yaw_state = 7;
+    float dist_travelled = 8;
+}
+
+/* ------------------------------------ Main Bot2Web Message ------------------------------------ */
+
+message Bot2Web {
+    // Acknowledge a message.
+    uint32 ack = 1;
+
+    // Read currently loaded data.
+    bytes curr_enable_balancing = 2;
+    PitchController curr_pitch = 3;
+    YawController curr_yaw = 4;
+    PhysicalCharacteristics curr_physical = 5;
+    MotorConfig curr_motor_l = 6;
+    MotorConfig curr_motor_r = 7;
+
+    // Read saved data.
+    bytes saved_enable_balancing = 8;
+    PitchController saved_pitch = 9;
+    YawController saved_yaw = 10;
+    PhysicalCharacteristics saved_physical = 11;
+    MotorConfig saved_motor_l = 12;
+    MotorConfig saved_motor_r = 13;
+
+    // Robot state.
+    RobotState robot_state = 14;
+
+    // Log message.
+    string log = 15;
+}

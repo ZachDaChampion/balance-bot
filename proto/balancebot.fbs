@@ -1,0 +1,199 @@
+namespace BalanceBotFlatbuffers;
+
+/* ---------------------------------------------------------------------------------------------- */
+/*                                             Global                                             */
+/* ---------------------------------------------------------------------------------------------- */
+
+/* -------------------------------------- Pitch Controller -------------------------------------- */
+
+enum PitchControllerType : byte { PID }
+
+struct PitchPID {
+    kp:float32;
+    ki:float32;
+    kd:float32;
+    integral_zero_threshold:float32;
+    integral_saturation_limit:float32;
+    reset_integral:bool;
+    add_gravity:bool;
+}
+
+struct PitchPIDState {
+    error:float32;
+    integral:float32;
+    derivative:float32;
+    output:float32;
+    saturated:float32;
+}
+
+table PitchController {
+    active:PitchControllerType;
+    pid:PitchPID;
+}
+
+union PitchControllerState {
+    PID:PitchPIDState
+}
+
+/* --------------------------------------- Yaw Controller --------------------------------------- */
+
+enum YawControllerType : byte { PID }
+
+struct YawPID {
+    kp:float32;
+    ki:float32;
+    kd:float32;
+    integral_zero_threshold:float32;
+    integral_saturation_limit:float32;
+    reset_integral:bool;
+}
+
+struct YawPIDState {
+    error:float32;
+    integral:float32;
+    derivative:float32;
+    output:float32;
+    saturated:float32;
+}
+
+table YawController {
+    active:YawControllerType;
+    pid:YawPID;
+}
+
+union YawControllerState {
+    PID:YawPIDState
+}
+
+/* ---------------------------------- Physical Characteristics ---------------------------------- */
+
+table PhysicalCharacteristics {
+    wheel_radius:float32;
+    wheel_base:float32;
+    gravity_accel:float32;
+    torque_length:float32;
+}
+
+/* ---------------------------------------- Motor Config ---------------------------------------- */
+
+table MotorConfig {
+    max_speed:uint8 = 100;
+    static_friction_neg:uint16 = 65535;
+    static_friction_pos:uint16 = 65535;
+    static_friction_time:uint32 = 100000;
+    brake_time:uint32 = 100000;
+    lut:[uint32];
+}
+
+/* ---------------------------------------------------------------------------------------------- */
+/*                                             Web2Bot                                            */
+/* ---------------------------------------------------------------------------------------------- */
+
+/* --------------------------------------- Drive the Robot -------------------------------------- */
+
+struct Drive {
+    linear:float32;
+    angular:float32;
+}
+
+/* ------------------------------------ Main Web2Bot Message ------------------------------------ */
+
+table Web2Bot {
+    id:uint32;
+
+    // Write data to temporary storage.
+    write_enable_balancing:byte;
+    write_pitch:PitchController;
+    write_yaw:YawController;
+    write_physical:PhysicalCharacteristics;
+    write_motor_l:MotorConfig;
+    write_motor_r:MotorConfig;
+
+    // Save data to persistant storage.
+    save_enable_balancing:bool;
+    save_pitch:bool;
+    save_yaw:bool;
+    save_physical:bool;
+    save_motor_l:bool;
+    save_motor_r:bool;
+
+    // Read currently loaded data.
+    read_curr_enable_balancing:bool;
+    read_curr_pitch:bool;
+    read_curr_yaw:bool;
+    read_curr_physical:bool;
+    read_curr_motor_l:bool;
+    read_curr_motor_r:bool;
+
+    // Read saved data.
+    read_saved_enable_balancing:bool;
+    read_saved_pitch:bool;
+    read_saved_yaw:bool;
+    read_saved_physical:bool;
+    read_saved_motor_l:bool;
+    read_saved_motor_r:bool;
+
+    // Load saved data to current data.
+    load_enable_balancing:bool;
+    load_pitch:bool;
+    load_yaw:bool;
+    load_physical:bool;
+    load_motor_l:bool;
+    load_motor_r:bool;
+
+    // Drive the robot.
+    drive:Drive;
+}
+
+/* ---------------------------------------------------------------------------------------------- */
+/*                                             Bot2Web                                            */
+/* ---------------------------------------------------------------------------------------------- */
+
+
+/* ----------------------------------------- Robot State ---------------------------------------- */
+
+struct MotorState {
+    angle:float32;
+    measured_speed:float32;
+    cmd_speed:float32;
+}
+
+table RobotState {
+    timestamp:int64;
+    pitch:float32;
+    yaw:float32;
+    left_motor:MotorState;
+    right_motor:MotorState;
+    pitch_state:PitchControllerState;
+    yaw_state:YawControllerState;
+    dist_travelled:float32;
+}
+
+/* ------------------------------------ Main Bot2Web Message ------------------------------------ */
+
+table Bot2Web {
+    // Acknowledge a message.
+    ack:uint32;
+
+    // Read currently loaded data.
+    curr_enable_balancing:byte;
+    curr_pitch:PitchController;
+    curr_yaw:YawController;
+    curr_physical:PhysicalCharacteristics;
+    curr_motor_l:MotorConfig;
+    curr_motor_r:MotorConfig;
+
+    // Read saved data.
+    saved_enable_balancing:byte;
+    saved_pitch:PitchController;
+    saved_yaw:YawController;
+    saved_physical:PhysicalCharacteristics;
+    saved_motor_l:MotorConfig;
+    saved_motor_r:MotorConfig;
+
+    // Robot state.
+    robot_state:RobotState;
+
+    // Log message.
+    log:string;
+}
