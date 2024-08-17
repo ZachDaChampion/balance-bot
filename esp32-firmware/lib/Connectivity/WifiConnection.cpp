@@ -223,6 +223,7 @@ esp_err_t WifiConnection::deactivate() {
     s_wifi_sta = nullptr;
     mdns_free();
     is_active = false;
+    xEventGroupClearBits(event_group, 0xFF);
     xSemaphoreGive(active_mutex);
     return ESP_OK;
 }

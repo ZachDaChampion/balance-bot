@@ -12,7 +12,7 @@ import {
 import { receive_message, send_message } from './messaging';
 import { Log, controllers } from './proto/proto';
 
-const FAKE_WEBSOCKET = false;
+const FAKE_WEBSOCKET = true;
 
 interface WebSocketState {
     address: string;

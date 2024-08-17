@@ -87,7 +87,7 @@ class WifiConnection {
     StaticEventGroup_t event_group_data;       ///< Static data allocation for wifi event group.
 
     const SemaphoreHandle_t active_mutex = nullptr;  ///< Whether any instance is active.
-    bool is_active = false;                          ///< True iff this server is currently active.
+    bool is_active = false;                          ///< True iff this wifi is currently active.
 
     static bool s_netif_active;      ///< True if netif has been initialized.
     static esp_netif_t* s_wifi_sta;  ///< Pointer to the current wifi station.
@@ -98,7 +98,7 @@ class WifiConnection {
 
     bool is_connected = false;  ///< True if wifi is connected to a network.
 
-    const char* log_tag = nullptr;  ///< The server's tag, used for logging.
+    const char* log_tag = nullptr;  ///< The connection's tag, used for logging.
 };
 
 #endif

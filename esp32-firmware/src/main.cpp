@@ -10,10 +10,10 @@
 #include <sdkconfig.h>
 
 #include <Motor.hpp>
+#include <WebSocketServer.hpp>
 #include <WifiConnection.hpp>
 
 #include "auth.hpp"
-#include "networking.hpp"
 
 extern "C" {
 void app_main(void);
@@ -56,14 +56,20 @@ void app_main() {
 
     WifiConnection wifi = WifiConnection::create("wifi connection");
     ESP_ERROR_CHECK(wifi.connect(SSID, PASSWORD, 4));
+    Lockable<WifiConnection> wifi_lockable(wifi);
+    auto wifi_locked = wifi_lockable.try_lock();
+    if (!wifi_locked) {
+        ESP_LOGE("main", "Failed to lock wifi connection");
+        esp_restart();
+    }
 
-    httpd_handle_t server;
-    webserver::start_webserver(&server);
+    WebSocketServer server("wss server");
+    server.start(wifi_locked);
 
     uint8_t* msg = const_cast<uint8_t*>(reinterpret_cast<const uint8_t*>("hello world"));
     while (1) {
         vTaskDelay(pdMS_TO_TICKS(1000));
-        const esp_err_t res = webserver::send_sync(server, msg, 11);
+        const esp_err_t res = server.send_sync(msg, 11);
         if (res != ESP_OK) ESP_LOGW("main", "Failed to send (%s)", esp_err_to_name(res));
     }
 }
